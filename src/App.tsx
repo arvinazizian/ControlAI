@@ -1,3 +1,4 @@
+import ReportReadiness from "./ReportReadiness";
 import ChatOnboarding, {type ConversationAnswers} from "./ChatOnboarding";
 import DataWorkbench from "./DataWorkbench";
 import AIGuidance from "./AIGuidance";
@@ -119,7 +120,7 @@ export default function App() {
     </section>}
     <div className="workspace-stage">
       <div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>
-      <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>setImportedDatasets(old=>[...old,...next])}/></div>
+      <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>setImportedDatasets(old=>[...old,...next])}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
       <div style={{display:tab==="data"?"block":"none"}}><DataWorkbench language={language} datasets={importedDatasets} onChange={setImportedDatasets}/><DataDecisionStudio language={language} datasets={importedDatasets}/></div>
       <div style={{display:tab==="relationships"?"block":"none"}}><BridgeAssistant language={language} datasets={importedDatasets} experience={experience}/><RelationshipReview language={language} datasets={importedDatasets}/></div>
       {tab==="report"&&<>
