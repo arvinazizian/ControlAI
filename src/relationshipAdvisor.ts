@@ -25,6 +25,21 @@ export function findRelationships(datasets:Dataset[]):RelationshipCandidate[]{
  }
  return out.sort((a,b)=>Number(a.status==="unsafe")-Number(b.status==="unsafe")||b.matchedLeft+b.matchedRight-a.matchedLeft-a.matchedRight);
 }
+export function inspectRelationship(a:Dataset,ac:string,b:Dataset,bc:string):RelationshipCandidate|null{
+ if(a.name===b.name||!a.columns.includes(ac)||!b.columns.includes(bc))return null;
+ const x=stats(a,ac),y=stats(b,bc);if(!x.present.length||!y.present.length)return null;
+ const matchedLeft=x.present.filter(v=>y.set.has(v)).length,matchedRight=y.present.filter(v=>x.set.has(v)).length;
+ const leftOrphans=x.present.length-matchedLeft,rightOrphans=y.present.length-matchedRight;
+ const cardinality=x.unique?(y.unique?"one_to_one":"one_to_many"):(y.unique?"many_to_one":"many_to_many");
+ const fanoutRisk=!x.unique&&!y.unique;
+ const reasons:string[]=[];
+ if(fanoutRisk)reasons.push("Both sides repeat keys; direct join can multiply rows");
+ if(leftOrphans||rightOrphans)reasons.push("Unmatched non-empty keys exist");
+ if(x.nulls||y.nulls)reasons.push("Missing join keys exist");
+ if(!matchedLeft&&!matchedRight)reasons.push("No matching values between these columns");
+ if(!reasons.length)reasons.push("Matching key values detected; verify row grain and business meaning");
+ return {id:JSON.stringify([a.name,ac,b.name,bc]),left:a.name,right:b.name,leftColumn:ac,rightColumn:bc,cardinality,matchedLeft,matchedRight,leftRows:a.rows.length,rightRows:b.rows.length,leftOrphans,rightOrphans,leftNulls:x.nulls,rightNulls:y.nulls,leftUnique:x.unique,rightUnique:y.unique,fanoutRisk,status:fanoutRisk||!matchedLeft||!matchedRight?"unsafe":"review",reasons};
+}
 export type ApprovedRelationship=Omit<RelationshipCandidate,"status">&{approvedAt:string;status:"approved"};
 export function approveRelationship(r:RelationshipCandidate,confirmedGrain:boolean):ApprovedRelationship{
  if(r.status==="unsafe"||!confirmedGrain)throw Error("Relationship is unsafe or row grain is not confirmed");
