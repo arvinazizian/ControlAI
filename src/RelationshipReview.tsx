@@ -1,10 +1,11 @@
-import {useMemo,useState} from "react";
+import {useEffect,useMemo,useState} from "react";
 import type {Dataset} from "./dataAdvisor";
 import type {Language} from "./i18n";
 import {approveRelationship,findRelationships,type ApprovedRelationship} from "./relationshipAdvisor";
 export default function RelationshipReview({datasets,language}:{datasets:Dataset[];language:Language}){
  const [confirmed,setConfirmed]=useState<Record<string,boolean>>({});const [approved,setApproved]=useState<Record<string,ApprovedRelationship>>({});const [error,setError]=useState("");
  const suggestions=useMemo(()=>findRelationships(datasets),[datasets]);
+ useEffect(()=>{setConfirmed({});setApproved({});setError("");},[datasets]);
  const fa=language==="fa";const title=fa?"بررسی ارتباط واقعی جدول‌ها":"Validated table relationships";
  return <section className="panel import"><h2>{title}</h2><p>{fa?"کلیدهای مشترک، تعداد تطابق‌ها، رکوردهای بدون ارتباط و احتمال چندبرابر شدن ردیف‌ها بررسی می‌شوند. هیچ JOIN یا تغییری در داده اصلی اجرا نمی‌شود.":"Shared keys, matches, orphan records and fan-out risks are inspected. No joins or source changes are executed."}</p>
  {datasets.length<2?<p>{fa?"برای بررسی ارتباط، حداقل دو جدول وارد کنید.":"Import at least two tables."}</p>:suggestions.length===0?<p>{fa?"ستون مشترک مناسبی پیدا نشد. امکان تعریف نگاشت دستی ستون‌ها هنوز پیاده‌سازی نشده است.":"No shared column names detected. Manual key mapping is pending."}</p>:suggestions.map(r=><div key={r.id} className="wizard-option" style={{display:"block",marginBottom:12}}>
