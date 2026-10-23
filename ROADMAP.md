@@ -61,6 +61,14 @@ Last reviewed: 2026-10-23
 - [x] Editable company terminology glossary with alias collision validation (browser-local prototype)
 - [ ] Company-specific glossary stored securely per organization
 - [ ] Authorized company AI integration (API endpoint, auth, permission scopes)
+- [ ] Bidirectional enterprise AI gateway: send ControlAI prompts to company AI and receive structured responses
+- [ ] Pluggable adapters for company GPT, Microsoft Copilot agents, Azure OpenAI and approved APIs
+- [ ] Enterprise connection configuration with per-organization credentials and consent
+- [ ] Prompt template registry, request/response schema and traceable execution history
+- [ ] Structured response validation before applying chart or dataset changes
+- [ ] Per-user delegated identity and access checks on every AI request
+- [ ] Minimize/redact sensitive payloads; prohibit unapproved external data transfer
+- [ ] Timeout, retries, error handling and connector health checks
 - [ ] Support organization-provided GPT/agent such as Achmea GPT (verify platform and supported API)
 - [ ] Microsoft Copilot Studio agent connection via approved channels and Entra authentication
 - [ ] Company-approved terminology sync from authorized knowledge sources (read-only, versioned, source-attributed)
