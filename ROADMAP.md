@@ -245,3 +245,12 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Let users save/reopen/change selections per workspace securely; preserve multi-select selections across steps
 - [ ] Generate executable report specification, validated measures and real visuals from approved selections
 - [ ] Verify build, deployed interactions, accessibility, translations and mobile layouts
+
+## Adaptive report discovery from imported data — 2026-10-23
+- [x] Pass in-memory uploaded datasets from App to ReportDiscovery (code committed; build unverified)
+- [x] Rank report categories using normalized column-name hints from all uploaded files; mark suggested report types (heuristic, not ML)
+- [x] Show contextual missing-date, missing-project-key and missing-numeric-field prompts during detailed discovery; include source hints in proposed plan
+- [ ] Turn contextual prompts into selectable answers, map chosen fields and join keys, and persist approved decisions
+- [ ] Rank based on sampled values, data types, grain and semantic synonyms, not column names alone
+- [ ] Connect report plan to validated semantic model, formulas and actual charts
+- [ ] Add automated tests and verify TypeScript/Vite build and deployment for adaptive discovery
