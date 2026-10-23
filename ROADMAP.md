@@ -273,3 +273,14 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Make all questions genuinely adaptive by expertise level and available source profiles; current level mainly changes introduction and one detail message
 - [ ] Localize the fallback assistant and onboarding completely across Persian, Dutch, English, Arabic and Turkish
 - [ ] Verify build, tests, live Vercel deployment and mobile usability; code committed does not mean released
+
+## Dynamic interview and learning — 2026-10-23
+- [x] Added priority-based dynamic question generation using source columns, missing values, number of tables, and user expertise (code committed; build not verified).
+- [x] Sequential question UI presents one issue at a time, updates after every answer, and accepts custom answers.
+- [x] Browser-local approved answer memory scoped by dataset column signature; allows reviewing and undoing answers.
+- [ ] Connect answers to actual relationship/cleaning actions and re-run validations after applying changes.
+- [ ] Improve semantic understanding of values and synonyms, not just names; add confidence, provenance and contradiction checks.
+- [ ] Add authenticated per-user/organization learning, consent, permissions, retention and privacy controls.
+- [ ] Support AI-generated follow-up questions via approved LLM provider with deterministic safety checks and human approval.
+- [ ] Fully localize all question text and choices in all five supported languages.
+- [ ] Run TypeScript/Vite build, tests and deployment verification. No successful verification yet.
