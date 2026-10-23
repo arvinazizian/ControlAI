@@ -1,4 +1,4 @@
-import ChatOnboarding from "./ChatOnboarding";
+import ChatOnboarding, {type ConversationAnswers} from "./ChatOnboarding";
 import DataWorkbench from "./DataWorkbench";
 import AIGuidance from "./AIGuidance";
 import AdaptiveInterview from "./AdaptiveInterview";
@@ -43,6 +43,7 @@ export default function App() {
   const [settings,setSettings] = useState(initial);
   const [tab,setTab] = useState<WorkspaceTab>("sources");
   const [showWorkspace,setShowWorkspace] = useState(false);
+  const [conversation,setConversation] = useState<ConversationAnswers>({});
   const [assistantOpen,setAssistantOpen] = useState(true);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("questions");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
@@ -92,7 +93,7 @@ export default function App() {
     const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
     const a=document.createElement("a");a.href=url;a.download="controlai-visual.json";a.click();URL.revokeObjectURL(url);
   }
-  if(!showWorkspace)return <ChatOnboarding language={language} onLanguageChange={changeLanguage} onOpenWorkspace={()=>{setTab("sources");setShowWorkspace(true);}}/>;
+  if(!showWorkspace)return <ChatOnboarding language={language} onLanguageChange={changeLanguage} onOpenWorkspace={answers=>{setConversation(answers);setTab("sources");setShowWorkspace(true);}}/>;
   return <div className="app">
     <aside className="sidebar"><div className="brand"><BarChart3 size={25}/><span>Control<span className="accent">AI</span></span></div><div className="nav active">▦ &nbsp; {t("visualStudio")}</div><div className="nav muted">◫ &nbsp; {t("dashboards")} <small>{t("soon")}</small></div><div className="nav muted">◇ &nbsp; {t("dataSources")} <small>{t("soon")}</small></div><div className="sidebottom">MVP v0.1<br/>Local sample data · No cloud connection</div></aside>
     <main><button className="secondary" onClick={()=>setShowWorkspace(false)}>{language==="fa"?"← بازگشت به گفت‌وگو":"← Back to conversation"}</button><div className="language-picker"><label htmlFor="language-select">{t("language")}</label><select id="language-select" value={language} onChange={e=>changeLanguage(e.target.value as Language)}><option value="en">English</option><option value="nl">Nederlands</option><option value="fa">فارسی</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div><header><div><div className="eyebrow">{t("workspace")}</div><h1>{t("comparison")} <span className="chip">Visual B</span></h1><p>{t("intro")}</p></div><button className="primary" onClick={download}><Download size={16}/> {t("export")}</button></header>
@@ -111,6 +112,11 @@ export default function App() {
         </>}
       </div>}
     </section>
+    {conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
+      <strong>{language==="fa"?"درخواست گزارش شما":"Your report request"}</strong>
+      <p>{conversation.goal.join(" · ")} · {conversation.detail?.join(", ")||""} · {conversation.frequency?.join(", ")||""}</p>
+      <small>{language==="fa"?"این انتخاب‌ها ذخیره شده‌اند و برای تنظیم گزارش استفاده خواهند شد؛ گزارش خودکار هنوز به اعتبارسنجی داده نیاز دارد.":"Preferences captured. Actual report generation requires source-data validation."}</small>
+    </section>}
     <div className="workspace-stage">
       <div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>
       <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>setImportedDatasets(old=>[...old,...next])}/></div>
