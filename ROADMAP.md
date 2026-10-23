@@ -178,9 +178,35 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 ## Decision-driven preparation, measures and visual authoring
 - [x] Initial read-only data-quality suggestions (missing values, duplicate identifiers, date issues and calendar questions); manual JSON sample input only, build unverified
 - [x] Initial five-language UI for suggest / guided / custom formula modes and draft EAC, VAC, variance measures (not executable)
-- [ ] Connect decisions directly to all uploaded and connected datasets; infer questions dynamically
+- [x] Connect uploaded multi-file CSV/XLSX datasets to the decision advisor through in-memory app state; select a source table and generate deterministic questions (code committed, build/UI unverified)
+- [ ] Connect decisions to SQL/API/enterprise sources and richer data profiling
+- [x] Record explicit per-dataset question answers in browser session state without modifying data (code committed; not persisted)
 - [ ] Preview transformations and before/after totals, require approval, record reversible steps
 - [ ] Validate formulas against semantic model, types, granularity, units and permissions; safe calculation runtime
 - [ ] Natural-language and code-assisted SQL/DAX/transform generation with sandbox and explicit approval
 - [ ] Recommend visual types and chart measures using validated model and reporting intent
 - [ ] Auto-suggest date dimension, surrogate keys and rolling three-month measures without inventing data
+
+## Engineering decisions and implementation log (2026-10-23)
+- [x] Decision: source-neutral data modeling, initially multiple XLSX/CSV files, later online/offline databases through secure adapters
+- [x] Decision: nontechnical guided questions rather than asking users to classify Fact/Dimension directly
+- [x] Decision: no automatic destructive cleaning, joins, generated code or measure execution without validation and explicit user approval
+- [x] Decision: tenant-private approved patterns; cross-company learning requires consent and privacy safeguards
+- [x] Code: multi-file importer now sends parsed rows and column names into in-memory datasets in App.tsx
+- [x] Code: advisor now accepts imported datasets, lets user select a table, and records answers in session state
+- [ ] Verify TypeScript build, GitHub Actions and Vercel deployment for all new changes
+- [ ] Add automated test fixtures: four linked project-control files with duplicates, missing dates, mismatched grains and orphan keys
+- [ ] Build safe transformation preview: filter, trim, normalize, deduplicate with explicit strategy and audit trail
+- [ ] Add per-column inferred types, numeric/date parsing and data-quality statistics with sample limits
+- [ ] Add robust join-key validation and actual relationship approval UI
+- [ ] Create validated semantic model from approved tables and relationships; feed visuals from the model
+- [ ] Implement executable, sandboxed formula/measure engine with dependency graph, unit validation and aggregate semantics
+- [ ] Offer code writing modes: user writes / guided coauthoring / AI drafts, with safe execution and diff review
+- [ ] Suggest charts, rolling-three-month date logic and calendar tables from actual available columns
+- [ ] Persist decisions, model versions and learning feedback securely per organization with auth and RLS
+- [ ] Build connector SDK for read-only SQL, REST APIs, on-prem gateway, SAP, Planview and Power BI interoperability
+- [ ] Support lineage, refresh policies, privacy classification and permission-aware AI suggestions
+- [ ] Full translations for new advisor questions and accessibility messages across five languages
+- [ ] Evaluate model and cleaning suggestions against real-world project-control cases; human review before production use
+
+**Status convention:** Checked entries marked "code committed" are not evidence of successful build, deployment or end-to-end functionality. All unimplemented, blocked or unverified items remain explicitly recorded.
