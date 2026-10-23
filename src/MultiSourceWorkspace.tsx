@@ -1,0 +1,30 @@
+import {useState} from "react";
+import ExcelJS from "exceljs";
+import type {Language} from "./i18n";
+
+type TableProfile={id:string;name:string;columns:string[];rowCount:number;unique:string[];sample:Record<string,string>[]};
+type Relation={left:string;right:string;column:string;status:string};
+const labels={
+en:["Multi-source data workspace","Select several Excel / CSV files","Detected tables","Suggested relationships","No files loaded","Inspect and approve relationships before building reports","Potential one-to-many","Ambiguous relationship","No matching columns detected","Files are processed locally. SQL, APIs and enterprise gateways are future connectors."],
+nl:["Werkruimte met meerdere bronnen","Selecteer meerdere Excel-/CSV-bestanden","Gevonden tabellen","Voorgestelde relaties","Geen bestanden","Controleer relaties vóór het bouwen van rapporten","Mogelijk één-op-veel","Onduidelijke relatie","Geen overeenkomende kolommen","Bestanden worden lokaal verwerkt. SQL, API's en gateways volgen later."],
+fa:["محیط داده چندمنبعی","چند فایل Excel / CSV انتخاب کنید","جدول‌های شناسایی‌شده","روابط پیشنهادی","هنوز فایلی وارد نشده","پیش از گزارش‌سازی، روابط را بررسی و تأیید کنید","رابطه احتمالی یک‌به‌چند","رابطه مبهم","ستون مشترکی پیدا نشد","فایل‌ها در مرورگر پردازش می‌شوند. اتصال SQL، API و Gateway در مراحل بعدی است."],
+ar:["مساحة بيانات متعددة المصادر","اختر عدة ملفات Excel / CSV","الجداول المكتشفة","العلاقات المقترحة","لم تُحمّل ملفات","راجع العلاقات قبل إنشاء التقارير","علاقة واحد إلى متعدد محتملة","علاقة غير واضحة","لم يتم العثور على أعمدة مشتركة","تُعالج الملفات محلياً. اتصالات SQL وAPI لاحقاً."],
+tr:["Çok kaynaklı veri alanı","Birden çok Excel / CSV dosyası seçin","Algılanan tablolar","Önerilen ilişkiler","Henüz dosya yok","Raporlardan önce ilişkileri doğrulayın","Olası bire-çok ilişki","Belirsiz ilişki","Ortak sütun bulunamadı","Dosyalar yerel işlenir. SQL, API ve ağ geçitleri daha sonra."]
+} as const;
+const norm=(s:string)=>s.trim().toLowerCase().replace(/[\s_-]/g,"");
+function profile(name:string,rows:string[][]):TableProfile{
+ const headers=(rows[0]||[]).map((h,i)=>h.trim()||"Column "+(i+1));const data=rows.slice(1).filter(r=>r.some(x=>x.trim()));
+ const unique=headers.filter((_,i)=>data.length>0&&data.every(r=>(r[i]||"").trim())&&new Set(data.map(r=>r[i]?.trim())).size===data.length);
+ return{id:name,name,columns:headers,rowCount:data.length,unique,sample:data.slice(0,3).map(row=>Object.fromEntries(headers.map((h,i)=>[h,row[i]||""])))};
+}
+function csvRows(text:string):string[][]{
+ const rows:string[][]=[];let row:string[]=[],value="",quoted=false;const source=text.replace(/^\uFEFF/,"");
+ for(let i=0;i<source.length;i++){const c=source[i];if(c==='"'){if(quoted&&source[i+1]==='"'){value+='"';i++;}else quoted=!quoted;}else if(c===","&&!quoted){row.push(value);value="";}else if((c==="\n"||c==="\r")&&!quoted){if(c==="\r"&&source[i+1]==="\n")i++;row.push(value);if(row.some(v=>v.trim()))rows.push(row);row=[];value="";}else value+=c;}
+ if(quoted)throw Error("Unclosed CSV quote");row.push(value);if(row.some(v=>v.trim()))rows.push(row);return rows;
+}
+function cell(v:ExcelJS.CellValue):string{if(v==null)return"";if(v instanceof Date)return v.toISOString();if(typeof v==="string"||typeof v==="number"||typeof v==="boolean")return String(v);if("result"in v)return cell(v.result as ExcelJS.CellValue);if("text"in v)return v.text;if("richText"in v)return v.richText.map(x=>x.text).join("");return"";}
+function suggest(tables:TableProfile[]):Relation[]{const out:Relation[]=[];for(let i=0;i<tables.length;i++)for(let j=i+1;j<tables.length;j++){const a=tables[i],b=tables[j];for(const column of a.columns){const other=b.columns.find(c=>norm(c)===norm(column));if(!other)continue;const au=a.unique.includes(column),bu=b.unique.includes(other);out.push({left:a.name,right:b.name,column,status:au!==bu?"candidate_one_to_many":au&&bu?"candidate_one_to_one":"ambiguous_many_to_many"});}}return out;}
+export default function MultiSourceWorkspace({language}:{language:Language}){const [tables,setTables]=useState<TableProfile[]>([]);const [error,setError]=useState("");const [busy,setBusy]=useState(false);const ui=labels[language];const relations=suggest(tables);
+ async function load(files:FileList|null){if(!files)return;setBusy(true);setError("");try{const next:TableProfile[]=[];for(const file of Array.from(files)){if(file.size>5*1024*1024)throw Error(file.name+": 5 MB limit");const lower=file.name.toLowerCase();if(lower.endsWith(".csv")){const rows=csvRows(await file.text()).slice(0,5001);if(rows.length)next.push(profile(file.name,rows));}else if(lower.endsWith(".xlsx")){const book=new ExcelJS.Workbook();await book.xlsx.load(await file.arrayBuffer() as never);for(const sheet of book.worksheets){const rows=Array.from({length:Math.min(sheet.rowCount,5001)},(_,i)=>Array.from({length:Math.min(sheet.columnCount,100)},(_,j)=>cell(sheet.getRow(i+1).getCell(j+1).value)));if(rows.length)next.push(profile(file.name+" / "+sheet.name,rows));}}else throw Error("Unsupported file: "+file.name);}setTables(old=>[...old,...next]);}catch(e){setError(e instanceof Error?e.message:"Import failed");}finally{setBusy(false);}}
+ return <section className="panel import"><h2>{ui[0]}</h2><p>{ui[9]}</p><label>{ui[1]}<input type="file" multiple accept=".xlsx,.csv,text/csv" disabled={busy} onChange={e=>{void load(e.target.files);e.target.value="";}}/></label>{error&&<p className="bad" role="alert">{error}</p>}<h3>{ui[2]}</h3>{!tables.length?<p>{ui[4]}</p>:<div className="wizard-options">{tables.map((t,i)=><div key={i} className="wizard-option" style={{display:"block"}}><strong>{t.name}</strong><p>{t.rowCount} rows · {t.columns.length} columns</p><small>{t.columns.join(" · ")}</small><p>Candidate unique keys: {t.unique.join(", ")||"none"}</p></div>)}</div>}<h3>{ui[3]}</h3>{relations.length?relations.map((r,i)=><div key={i} className="wizard-option" style={{marginBottom:8,display:"block"}}>{r.left} ↔ {r.right} · <strong>{r.column}</strong> · {r.status==="candidate_one_to_many"?ui[6]:ui[7]}</div>):<p>{ui[8]}</p>}<p>{ui[5]}</p></section>;
+}
