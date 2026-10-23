@@ -61,6 +61,10 @@ Last reviewed: 2026-10-23
 - [x] Editable company terminology glossary with alias collision validation (browser-local prototype)
 - [ ] Company-specific glossary stored securely per organization
 - [ ] Authorized company AI integration (API endpoint, auth, permission scopes)
+- [ ] Support organization-provided GPT/agent such as Achmea GPT (verify platform and supported API)
+- [ ] Microsoft Copilot Studio agent connection via approved channels and Entra authentication
+- [ ] Company-approved terminology sync from authorized knowledge sources (read-only, versioned, source-attributed)
+- [ ] Per-user delegated permissions for company AI and knowledge retrieval
 - [ ] Approved import of company AI prompt, instructions, and terminology with review/versioning
 - [ ] Enterprise data governance: redact sensitive context before external model calls
 - [x] Experimental text-command UI with limited keyword rules (NOT real AI)
