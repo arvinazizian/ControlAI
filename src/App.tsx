@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { BarChart3, Download, RotateCcw, Sparkles } from "lucide-react";
 import { sampleProjects, type Project } from "./data";
+import ExcelImport from "./ExcelImport";
+import CompanyGlossary from "./CompanyGlossary";
+import { loadTerms, type Term } from "./terminology";
 
 type Metric = "forecast" | "actual";
 type Direction = "horizontal" | "vertical";
@@ -24,6 +27,8 @@ function parseCSV(text: string): Project[] {
 }
 export default function App() {
   const [settings,setSettings] = useState(initial);
+  const [terms,setTerms] = useState<Term[]>(loadTerms);
+  function saveTerms(next:Term[]){setTerms(next);localStorage.setItem("controlai-glossary-v1",JSON.stringify(next));}
   const [projects,setProjects] = useState<Project[]>(sampleProjects);
   const [selected,setSelected] = useState<string | null>("P-102");
   const [error,setError] = useState("");
@@ -71,5 +76,7 @@ export default function App() {
     <section className="panel controls"><h2>Visual properties</h2><p>Every setting updates the chart instantly.</p><label>Compare budget with</label><select value={settings.metric} onChange={e=>update({metric:e.target.value as Metric})}><option value="forecast">Forecast</option><option value="actual">Actual Cost</option></select><label>Orientation</label><select value={settings.direction} onChange={e=>update({direction:e.target.value as Direction})}><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select><label>Sort projects</label><select value={settings.sort} onChange={e=>update({sort:e.target.value})}><option value="name">Project name</option><option value="variance">Largest forecast variance</option></select><label>Color theme</label><div className="swatches">{(Object.keys(palettes) as Palette[]).map(k=><button key={k} aria-label={k} title={k} className={settings.palette===k?"chosen":""} style={{background:palettes[k][0]}} onClick={()=>update({palette:k})}/>)}</div><label className="check"><input type="checkbox" checked={settings.showLabels} onChange={e=>update({showLabels:e.target.checked})}/> Show value labels</label><button className="secondary" onClick={()=>setSettings(initial)}><RotateCcw size={15}/> Reset visual</button></section></div>
     <section className="panel ai"><div className="panelhead"><div><h2><Sparkles size={18}/> Visual command</h2><p>Prototype: local keyword rules only — no AI model connected yet.</p></div><span className="chip">Experimental</span></div><div className="prompt"><input value={prompt} onChange={e=>setPrompt(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")applyPrompt()}} placeholder="e.g. Make it vertical, use green, sort by variance"/><button className="primary" onClick={applyPrompt}>Apply</button></div>{notice&&<p className="notice">{notice}</p>}</section>
     <section className="panel import"><h2>Load CSV data</h2><p>Columns: id,name,budget,forecast,actual. Values in € millions. Simple comma-separated CSV without quoted commas.</p><input type="file" accept=".csv,text/csv" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{const rows=parseCSV(await file.text());setProjects(rows);setSelected(rows[0]?.id??null);setError("");}catch(err){setError(err instanceof Error?err.message:"Unable to parse file");}}}/>{error&&<p className="bad">{error}</p>}<button className="secondary" onClick={()=>{setProjects(sampleProjects);setSelected("P-102");setError("");}}>Restore sample data</button></section>
+    <ExcelImport terms={terms} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/>
+    <CompanyGlossary terms={terms} onChange={saveTerms}/>
     <footer>ControlAI MVP · Free & open-source visualization stack · All default values are demo data</footer></main></div>;
 }
