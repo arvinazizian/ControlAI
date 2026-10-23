@@ -305,3 +305,14 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Validate AI proposals against source data and approved semantic model; persist reviewable decision history and structured tool execution.
 - [ ] Connect AI-generated questions with deterministic interview and approved transformation/relationship pipeline, avoiding duplicate question flows.
 - [ ] Add safe privacy-aware sampling options and enterprise data residency controls.
+
+## Data grid, reversible editing and audit sidebar
+- [x] Added tabular data browser: table list, drill into a table, inspect columns and paginated rows, navigate back.
+- [x] Added immutable working-copy snapshots for import, column rename, derived normalized column and cell edit.
+- [x] Added right-side history panel with timestamps, undo, redo, return to earlier step, and JSON event-log export.
+- [x] Kept original uploaded files unchanged; undo restores working-copy snapshots.
+- [ ] Make one shared canonical workspace so downstream AI, relationship validation, calculations and reports use the currently edited working copy; current DataWorkbench state is isolated.
+- [ ] Extend history to cleaning, join approvals, AI actions, report visual changes and questionnaire choices; distinguish proposed vs applied actions.
+- [ ] Persist encrypted/audited history per authenticated workspace, provide checkpoint names, branches, retention, and data provenance.
+- [ ] Add filters, sort, search, row detail, column profiling and a full Power BI-style field/model view.
+- [ ] Verify TypeScript/Vite build, end-to-end undo/redo tests, deployment and responsive layout.
