@@ -294,3 +294,14 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Build full contradiction resolution dialogue and explicit correction workflows for key selection, join grain, mapping and date meaning.
 - [ ] Test false positives, misleading responses, adversarial data, type mismatches, composite keys and report correctness.
 - [ ] Verify TypeScript build, UI behavior and deployed release.
+
+## AI integration foundation
+- [x] Added server-side /api/ai endpoint using Vercel AI Gateway chat-completions API with environment-only credentials (code committed, deployment not verified).
+- [x] Added guided AI question generation for discovery, data quality, relationships, semantic model and report design; iterative user answers.
+- [x] Frontend sends only schema names, row counts and missing-value aggregates, not raw imported rows. Schema/column names can still be sensitive and need disclosure/consent controls.
+- [x] Server validates JSON response shape and limits output; proposals are advisory only, not executable.
+- [ ] Configure AI_GATEWAY_API_KEY and CONTROLAI_MODEL in Vercel, verify compatible model, run live request and build.
+- [ ] Add authentication, per-user rate limits, abuse controls, usage budgets and privacy consent BEFORE public production enablement.
+- [ ] Validate AI proposals against source data and approved semantic model; persist reviewable decision history and structured tool execution.
+- [ ] Connect AI-generated questions with deterministic interview and approved transformation/relationship pipeline, avoiding duplicate question flows.
+- [ ] Add safe privacy-aware sampling options and enterprise data residency controls.
