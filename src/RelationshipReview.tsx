@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
+import {joinApprovedTables} from "./safeJoin";
 import type {Dataset} from "./dataAdvisor";
 import type {Language} from "./i18n";
 import {approveRelationship,findRelationships,type ApprovedRelationship} from "./relationshipAdvisor";
@@ -17,6 +18,7 @@ export default function RelationshipReview({datasets,language}:{datasets:Dataset
  <button className="secondary" disabled={r.status==="unsafe"||!confirmed[r.id]||!!approved[r.id]} onClick={()=>{try{const a=approveRelationship(r,!!confirmed[r.id]);setApproved(old=>({...old,[r.id]:a}));setError("");}catch(e){setError(String(e));}}}>{approved[r.id]?(fa?"تأیید شد":"Approved"):(fa?"تأیید ارتباط پیشنهادی":"Approve candidate")}</button>
  </div>)}
  {error&&<p role="alert" className="bad">{error}</p>}
+ {Object.values(approved).map(r=><div key={r.id} className="panel"><h3>{fa?"پیش‌نمایش اتصال ایمن":"Safe join preview"}: {r.left} ↔ {r.right}</h3>{(["left","right"] as const).filter(side=>side==="left"?r.rightUnique:r.leftUnique).map(side=>{try{const joined=joinApprovedTables(datasets,r,side);return <div key={side}><p>{fa?"جدول اصلی":"Fact table"}: {side==="left"?r.left:r.right} · {fa?"تعداد ردیف‌های نتیجه":"Result rows"}: {joined.rows.length}</p><div style={{overflowX:"auto"}}><table><thead><tr>{joined.columns.map(col=><th key={col}>{col}</th>)}</tr></thead><tbody>{joined.rows.slice(0,5).map((row,i)=><tr key={i}>{joined.columns.map(col=><td key={col}>{String(row[col]??"—")}</td>)}</tr>)}</tbody></table></div></div>;}catch(e){return <p role="alert" key={side} className="bad">{String(e)}</p>;}})}</div>)}
  {Object.keys(approved).length>0&&<><h3>{fa?"مدل ارتباطی تأییدشده (پیش‌نویس)":"Approved relationship metadata (draft)"}</h3><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{JSON.stringify(Object.values(approved).map(({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})=>({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})),null,2)}</pre><p>{fa?"هنوز رابطه اجرایی، JOIN و اتصال به نمودار ساخته نشده است.":"Executable joins, semantic model and charts are not connected yet."}</p></>}
  </section>;
 }
