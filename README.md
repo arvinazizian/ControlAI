@@ -1,5 +1,7 @@
 # ControlAI — Visual Studio MVP
 
+**[Open development checklist / roadmap](./ROADMAP.md)** — completed and upcoming work tracked with checkboxes.
+
 A free, local-first Project Control visual analytics prototype.
 
 ## Run
