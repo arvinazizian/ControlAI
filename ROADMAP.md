@@ -221,3 +221,16 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Run TypeScript/Vite build and automated tests (local container cannot resolve github.com; no successful build evidence)
 - [ ] Confirm how missing rows, duplicate keys, date parsing, currency units and grain should be handled for each dataset before any irreversible change
 - [ ] Wire approved cleaning steps to derived tables, model builder, chart measures and version history
+
+## Proactive first-contact data understanding — 2026-10-23
+- [x] Initial heuristic header-row candidate ranking over first 12 rows, with confidence score, reasons and header preview (code committed; not yet build-verified)
+- [x] On multi-file import, present proactive questions about header position, leading title/metadata rows, fully blank rows and total/subtotal rows (code committed)
+- [x] Capture answers to these start-up questions in current browser session, without modifying original file
+- [ ] Apply approved header-row selection to actual parsed table schema and downstream data advisor
+- [ ] Preview before/after header promotion, retained metadata, removed blank/total rows and totals validation
+- [ ] Detect merged Excel cells, multi-row headers, footnotes, repeated headers, sheet-level metadata and localized dates
+- [ ] Ask contextual questions about ambiguous column types, numeric formats, units, time grain and key uniqueness
+- [ ] Learn user-approved preparation patterns per organization after authenticated persistence exists
+- [ ] Add realistic import fixture tests and confirm heuristic false-positive rate before any auto-application
+- [ ] Translate every proactive question, option and explanation into all five interface languages
+- [ ] Verify TypeScript/Vite build, UI interactions and Vercel production deployment after latest changes
