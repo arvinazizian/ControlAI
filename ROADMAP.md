@@ -338,3 +338,16 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] End-to-end browser smoke tests for each previously built component and each supported language.
 - [ ] Fix isolated working-copy edits, duplicate questionnaire flows, import header assumptions, AI auth and model validation before production-ready claim.
 - [ ] Confirm access to correct Vercel project: current connector project listing is empty and deployment detail lookup returns not_found despite GitHub status URL.
+
+## Full-audit follow-up and release blocker
+- [x] Connected DataWorkbench edit/undo/redo outputs to App importedDatasets, so downstream advisory components see the working copy.
+- [x] Prevented local edit synchronization from being recorded as a new import action.
+- [x] Added Vitest regression tests for reversible edits, column derivation, unsafe relationships and invalid key answers.
+- [x] Added npm test and GitHub Actions test stage before build; tests have not yet been observed running successfully.
+- [!] GitHub commit status for 0c9a566e reports Vercel failure with target URL ending in upgradeToPro=build-rate-limit. Deployment is currently blocked by a Vercel build-rate limit, not a verified TypeScript failure.
+- [ ] Verify CI runs and fix any failing tests; GitHub connector only returned empty workflow runs for the latest commit.
+- [ ] Restore Vercel build capacity or adjust deployment settings, then confirm successful production deployment.
+- [ ] Configure Vercel to require CI success before production promotion; this is not yet configured.
+- [ ] Run actual browser end-to-end tests of all previously developed features, including mobile.
+- [ ] Harden AI endpoint authentication, usage limits and privacy consent before enabling AI in production.
+- [ ] Complete semantic model integration, header approval, persistent audit and remaining user flows.
