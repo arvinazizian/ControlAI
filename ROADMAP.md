@@ -328,3 +328,13 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Consolidate the separate data copies and duplicate questionnaire flows; currently edits in DataWorkbench do not update downstream reports.
 - [ ] Add automated unit tests, CI build check and browser E2E checks before production deployment.
 - [ ] Confirm the new commit builds and verify real functionality on production; no full browser E2E has been completed.
+
+## Quality gate and deployment verification — active
+- [x] Added GitHub Actions quality gate (.github/workflows/ci.yml) on pushes and PRs: Node 22, install dependencies, TypeScript/Vite build, dist/index.html existence.
+- [x] Code audit identified stale approved relationships after new dataset import; approvals and confirmations now reset on dataset changes.
+- [x] GitHub status check for commit 33bb27a reported Vercel pending at time of inspection; no Ready status confirmed.
+- [ ] GitHub Actions result not yet verified; CI alone does not block Vercel production Git deployments.
+- [ ] Configure branch protection / required quality checks and Vercel Deployment Checks or staged production promotion before claiming pre-deploy gating.
+- [ ] End-to-end browser smoke tests for each previously built component and each supported language.
+- [ ] Fix isolated working-copy edits, duplicate questionnaire flows, import header assumptions, AI auth and model validation before production-ready claim.
+- [ ] Confirm access to correct Vercel project: current connector project listing is empty and deployment detail lookup returns not_found despite GitHub status URL.
