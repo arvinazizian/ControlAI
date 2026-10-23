@@ -5,3 +5,20 @@
 .language-picker{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:18px}.language-picker label{font-size:13px;color:#a6b6cf}.language-picker select{width:auto;min-width:140px}.app[dir="rtl"],html[dir="rtl"] .app{text-align:right}.app[dir="rtl"] .sidebar,html[dir="rtl"] .sidebar{border-right:0;border-left:1px solid #223047}html[dir="rtl"] .brand,html[dir="rtl"] .panelhead,html[dir="rtl"] header{direction:rtl}html[dir="rtl"] .eyebrow{letter-spacing:0}html[dir="rtl"] .language-picker{justify-content:flex-start}html[dir="rtl"] .prompt input,html[dir="rtl"] textarea{direction:auto}html[dir="rtl"] .drillstats,html[dir="rtl"] .stats{direction:rtl}
 
 .wizard-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:18px 0}.wizard-option{display:flex;align-items:center;gap:10px;background:#0d1727;border:1px solid #344660;border-radius:10px;padding:13px;color:#dce7f9;font-size:13px;cursor:pointer}.wizard-option input{accent-color:#4a87ed}.wizard-result{margin:16px 0;padding:15px;border:1px solid #344660;border-radius:10px}.wizard-result pre{white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;text-align:left;font-size:12px;color:#c2d3ee}
+
+
+/* Guided workspace: one task area at a time, assistant dock at the top */
+.workspace-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 12px;padding:7px;background:#111e30;border:1px solid #2c3c54;border-radius:14px}
+.workspace-tab{background:transparent;color:#b9c9df;border:1px solid transparent;border-radius:9px;padding:11px 15px;font-weight:600;cursor:pointer}
+.workspace-tab:hover,.workspace-tab.active{background:#24466f;color:#fff;border-color:#4774ad}
+.assistant-dock{margin:12px 0 22px;border:1px solid #3a5e90;border-radius:15px;background:#12223a;overflow:hidden}
+.assistant-dock-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 19px}
+.assistant-dock-head strong{display:block;font-size:17px}.assistant-dock-head small{display:block;color:#a9bdd8;margin-top:5px}
+.assistant-dock-body{padding:0 18px 18px;max-height:min(72vh,650px);overflow-y:auto}
+.assistant-dock-body .panel{margin:10px 0;border-color:#344660}
+.assistant-mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.assistant-mode-tabs button{border:1px solid #344660;border-radius:9px;background:#152b45;color:#c6d7eb;padding:10px 15px;cursor:pointer}
+.assistant-mode-tabs button.active{background:#3565a0;color:white}
+.workspace-stage{min-width:0}.stage-heading{margin:12px 0 16px}.stage-heading h2{font-size:22px;margin-bottom:7px}.stage-heading p{color:#a9bdd8}
+.stage-navigation{display:flex;justify-content:space-between;gap:12px;margin:22px 0}
+@media(max-width:700px){.workspace-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-tab{padding:10px 5px;font-size:12px}.assistant-dock-head{align-items:flex-start}.assistant-dock-body{padding:0 10px 12px;max-height:70vh}.assistant-dock-head strong{font-size:15px}.stage-heading h2{font-size:19px}}
