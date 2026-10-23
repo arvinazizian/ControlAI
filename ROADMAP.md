@@ -316,3 +316,15 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Persist encrypted/audited history per authenticated workspace, provide checkpoint names, branches, retention, and data provenance.
 - [ ] Add filters, sort, search, row detail, column profiling and a full Power BI-style field/model view.
 - [ ] Verify TypeScript/Vite build, end-to-end undo/redo tests, deployment and responsive layout.
+
+## End-to-end audit after first successful deployment (in progress)
+- [x] Confirmed the earlier production build failures were caused by ExcelJS CellValue narrowing and ES2020-incompatible replaceAll; both fixes committed, user reports latest deployment succeeded.
+- [x] Code review found DataWorkbench exception handling was outside a React state updater; fixed to validate edits before scheduling state updates (commit 32d1a89).
+- [ ] Test Excel and CSV imports (multi-file, malformed header, repeated uploads, nulls, formulas, limits) in a browser.
+- [ ] Test the data grid, rename/edit/derive, undo/redo, navigation, history export and mobile sidebar.
+- [ ] Test all relationship paths, mismatched names, missing keys, many-to-many, invalid approvals and re-import invalidation.
+- [ ] Test dynamic questions, wrong user answers, stale memories, multiple languages and contradictory data.
+- [ ] Test AI endpoint with valid credentials in a private staging environment; enforce authentication, quotas and consent before public usage.
+- [ ] Consolidate the separate data copies and duplicate questionnaire flows; currently edits in DataWorkbench do not update downstream reports.
+- [ ] Add automated unit tests, CI build check and browser E2E checks before production deployment.
+- [ ] Confirm the new commit builds and verify real functionality on production; no full browser E2E has been completed.
