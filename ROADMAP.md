@@ -46,6 +46,9 @@ Last reviewed: 2026-10-23
 - [ ] Power BI interoperability where feasible
 
 ## Semantic data modeling — required reporting foundation
+- [x] Browser-local multi-file XLSX/CSV import, sheet profiling, unique-key candidates and shared-column relationship suggestions (code committed; build unverified)
+- [ ] Validate joins against actual values, grain, nulls, orphan keys and fan-out before relationship approval
+- [ ] Add source adapter interfaces for SQL databases, APIs and on-premises gateways
 - [x] Initial five-language guided questionnaire with multi-select answers and provisional model JSON (code committed; build/UI unverified)
 - [ ] Connect wizard answers to uploaded data profiling and generate actual tables and relationships
 - [ ] Adaptive follow-up questions based on source inspection, missing keys and ambiguous grain
