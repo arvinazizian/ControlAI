@@ -234,3 +234,14 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Add realistic import fixture tests and confirm heuristic false-positive rate before any auto-application
 - [ ] Translate every proactive question, option and explanation into all five interface languages
 - [ ] Verify TypeScript/Vite build, UI interactions and Vercel production deployment after latest changes
+
+## Progressive report discovery — 2026-10-23
+- [x] Three-stage, checkbox-based discovery UI: high-level goals, multiple closest report types, then tailored questions per selected type (code committed; build unverified)
+- [x] Report categories: project cost, schedule, sales, inventory, executive overview and custom; initial labels/questions in five languages
+- [x] Generate read-only report-plan JSON with selected needs, candidate metrics, suggested visuals and follow-up questions
+- [x] Mount discovery before semantic modeling wizard in main application
+- [ ] Merge discovery results into the existing model wizard and imported-source profiling
+- [ ] Use real source columns to prioritize options, detect missing required fields and ask adaptive follow-up questions
+- [ ] Let users save/reopen/change selections per workspace securely; preserve multi-select selections across steps
+- [ ] Generate executable report specification, validated measures and real visuals from approved selections
+- [ ] Verify build, deployed interactions, accessibility, translations and mobile layouts
