@@ -1,3 +1,4 @@
+import ChatOnboarding from "./ChatOnboarding";
 import DataWorkbench from "./DataWorkbench";
 import AIGuidance from "./AIGuidance";
 import AdaptiveInterview from "./AdaptiveInterview";
@@ -41,6 +42,7 @@ function parseCSV(text: string): Project[] {
 export default function App() {
   const [settings,setSettings] = useState(initial);
   const [tab,setTab] = useState<WorkspaceTab>("sources");
+  const [showWorkspace,setShowWorkspace] = useState(false);
   const [assistantOpen,setAssistantOpen] = useState(true);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("questions");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
@@ -90,9 +92,10 @@ export default function App() {
     const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
     const a=document.createElement("a");a.href=url;a.download="controlai-visual.json";a.click();URL.revokeObjectURL(url);
   }
+  if(!showWorkspace)return <ChatOnboarding language={language} onLanguageChange={changeLanguage} onOpenWorkspace={()=>{setTab("sources");setShowWorkspace(true);}}/>;
   return <div className="app">
     <aside className="sidebar"><div className="brand"><BarChart3 size={25}/><span>Control<span className="accent">AI</span></span></div><div className="nav active">▦ &nbsp; {t("visualStudio")}</div><div className="nav muted">◫ &nbsp; {t("dashboards")} <small>{t("soon")}</small></div><div className="nav muted">◇ &nbsp; {t("dataSources")} <small>{t("soon")}</small></div><div className="sidebottom">MVP v0.1<br/>Local sample data · No cloud connection</div></aside>
-    <main><div className="language-picker"><label htmlFor="language-select">{t("language")}</label><select id="language-select" value={language} onChange={e=>changeLanguage(e.target.value as Language)}><option value="en">English</option><option value="nl">Nederlands</option><option value="fa">فارسی</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div><header><div><div className="eyebrow">{t("workspace")}</div><h1>{t("comparison")} <span className="chip">Visual B</span></h1><p>{t("intro")}</p></div><button className="primary" onClick={download}><Download size={16}/> {t("export")}</button></header>
+    <main><button className="secondary" onClick={()=>setShowWorkspace(false)}>{language==="fa"?"← بازگشت به گفت‌وگو":"← Back to conversation"}</button><div className="language-picker"><label htmlFor="language-select">{t("language")}</label><select id="language-select" value={language} onChange={e=>changeLanguage(e.target.value as Language)}><option value="en">English</option><option value="nl">Nederlands</option><option value="fa">فارسی</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div><header><div><div className="eyebrow">{t("workspace")}</div><h1>{t("comparison")} <span className="chip">Visual B</span></h1><p>{t("intro")}</p></div><button className="primary" onClick={download}><Download size={16}/> {t("export")}</button></header>
     <nav className="workspace-tabs" aria-label={language==="fa"?"بخش‌های محیط کار":"Workspace sections"}>
       {([{id:"sources",fa:"۱. ورود داده",en:"1. Sources"},{id:"data",fa:"۲. بررسی داده",en:"2. Data"},{id:"relationships",fa:"۳. ارتباط‌ها",en:"3. Relationships"},{id:"report",fa:"۴. ساخت گزارش",en:"4. Report"},{id:"settings",fa:"تنظیمات",en:"Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
     </nav>
