@@ -13,7 +13,7 @@ export default function RelationshipCanvas({datasets,relationships,approved,lang
  const pos=(n:string)=>positions[n]||layout[n]||{x:28,y:30};
  const width=Math.max(940,...names.map(n=>pos(n).x+280));
  const height=Math.max(440,Math.ceil(names.length/3)*350+40,...names.map(n=>pos(n).y+320));
- useEffect(()=>{const move=(e:PointerEvent)=>{const d=drag.current;if(!d)return;setPositions(old=>({...old,[d.id], [d.id]:{x:Math.max(0,d.x+e.clientX-d.startX),y:Math.max(0,d.y+e.clientY-d.startY)}}));};const up=()=>{drag.current=null;};window.addEventListener("pointermove",move);window.addEventListener("pointerup",up);return()=>{window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up);};},[]);
+ useEffect(()=>{const move=(e:PointerEvent)=>{const d=drag.current;if(!d)return;setPositions(old=>({...old,[d.id]:{x:Math.max(0,d.x+e.clientX-d.startX),y:Math.max(0,d.y+e.clientY-d.startY)}}));};const up=()=>{drag.current=null;};window.addEventListener("pointermove",move);window.addEventListener("pointerup",up);return()=>{window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up);};},[]);
  function start(e:React.PointerEvent,id:string){const p=pos(id);drag.current={id,startX:e.clientX,startY:e.clientY,x:p.x,y:p.y};e.preventDefault();}
  return <div style={{margin:"16px 0 24px"}}>
  <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",marginBottom:10}}><h3 style={{margin:0}}>{fa?"نمای مدل ارتباطی":"Relationship model view"}</h3><button type="button" className="secondary" onClick={()=>setPositions({})}>{fa?"بازنشانی چیدمان":"Reset layout"}</button></div>
