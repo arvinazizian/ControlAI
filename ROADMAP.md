@@ -261,3 +261,15 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Verify build and deployment.
 - [ ] Add manual column mapping, composite keys, model graph checks and persistent approval.
 - [ ] Connect approved relationships to report calculations and charts.
+
+## Beginner-first onboarding and disconnected-table recovery
+- [x] Added user experience onboarding: beginner/intermediate/advanced, previously used tools, preferred guidance depth; browser-local preferences (code committed; build unverified)
+- [x] Added fallback assistant for disconnected tables: asks about differently named keys, missing mapping/lookup table, other source and derived key (code committed)
+- [x] Added manual selection of columns in two tables and preview of matching/unmatched row counts and fan-out risk
+- [x] Added non-destructive preview of a new normalized column (trim and lowercase) in a derived working copy; no source modifications
+- [ ] Connect manual mapping proposals to the central relationship approval flow and downstream semantic model
+- [ ] Add validated mapping-table upload and guided construction from explicitly supplied ID pairs; never invent real-world mappings
+- [ ] Offer composite-key creation, datatype harmonization, fuzzy-match candidates and conflict resolution with explicit review
+- [ ] Make all questions genuinely adaptive by expertise level and available source profiles; current level mainly changes introduction and one detail message
+- [ ] Localize the fallback assistant and onboarding completely across Persian, Dutch, English, Arabic and Turkish
+- [ ] Verify build, tests, live Vercel deployment and mobile usability; code committed does not mean released
