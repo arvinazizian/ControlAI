@@ -14,7 +14,7 @@ import type {Dataset} from "./dataAdvisor";
 import DataDecisionStudio from "./DataDecisionStudio";
 import MultiSourceWorkspace from "./MultiSourceWorkspace";
 import ModelWizard from "./ModelWizard";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { BarChart3, Download, RotateCcw, Sparkles } from "lucide-react";
 import { sampleProjects, type Project } from "./data";
@@ -45,11 +45,21 @@ function parseCSV(text: string): Project[] {
     return project;
   });
 }
+const SESSION_KEY="controlai-workspace-session-v1";
+function restoreWorkspace():{open:boolean;tab:WorkspaceTab;conversation:ConversationAnswers;datasets:Dataset[]} {
+ try {
+  const saved=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");
+  if(!saved||typeof saved!=="object")throw Error("No saved session");
+  const tabs:WorkspaceTab[]=["report","sources","data","relationships","settings"];
+  return {open:saved.open===true,tab:tabs.includes(saved.tab)?saved.tab:"sources",conversation:saved.conversation&&typeof saved.conversation==="object"?saved.conversation:{},datasets:Array.isArray(saved.datasets)?saved.datasets:[]};
+ }catch{return {open:false,tab:"sources",conversation:{},datasets:[]};}
+}
 export default function App() {
+  const [restoredSession]=useState(restoreWorkspace);
   const [settings,setSettings] = useState(initial);
-  const [tab,setTab] = useState<WorkspaceTab>("sources");
-  const [showWorkspace,setShowWorkspace] = useState(false);
-  const [conversation,setConversation] = useState<ConversationAnswers>({});
+  const [tab,setTab] = useState<WorkspaceTab>(restoredSession.tab);
+  const [showWorkspace,setShowWorkspace] = useState(restoredSession.open);
+  const [conversation,setConversation] = useState<ConversationAnswers>(restoredSession.conversation);
   const [assistantOpen,setAssistantOpen] = useState(true);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("questions");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
@@ -58,7 +68,11 @@ export default function App() {
   const [terms,setTerms] = useState<Term[]>(loadTerms);
   function saveTerms(next:Term[]){setTerms(next);localStorage.setItem("controlai-glossary-v1",JSON.stringify(next));}
   const [projects,setProjects] = useState<Project[]>(sampleProjects);
-  const [importedDatasets,setImportedDatasets] = useState<Dataset[]>([]);
+  const [importedDatasets,setImportedDatasets] = useState<Dataset[]>(restoredSession.datasets);
+  useEffect(()=>{
+    try {sessionStorage.setItem(SESSION_KEY,JSON.stringify({open:showWorkspace,tab,conversation,datasets:importedDatasets}));}
+    catch(e){console.warn("Workspace session could not be saved",e);}
+  },[showWorkspace,tab,conversation,importedDatasets]);
   const [approvedRelationships,setApprovedRelationships]=useState<Record<string,ApprovedRelationship>>({});
   const reportDatasets=useMemo(()=>{const joined:Dataset[]=[];for(const r of Object.values(approvedRelationships)){for(const side of (["left","right"] as const)){if(side==="left"&&!r.rightUnique||side==="right"&&!r.leftUnique)continue;try{joined.push(joinApprovedTables(importedDatasets,r,side));}catch(e){console.warn("Approved join unavailable",e);}}}return [...importedDatasets,...joined];},[importedDatasets,approvedRelationships]);
   const [experience,setExperience] = useState<ExperienceProfile|null>(()=>{try{const raw=localStorage.getItem("controlai-experience-v1");return raw?JSON.parse(raw) as ExperienceProfile:null;}catch{return null;}});
