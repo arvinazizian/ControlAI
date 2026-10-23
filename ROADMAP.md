@@ -254,3 +254,10 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Rank based on sampled values, data types, grain and semantic synonyms, not column names alone
 - [ ] Connect report plan to validated semantic model, formulas and actual charts
 - [ ] Add automated tests and verify TypeScript/Vite build and deployment for adaptive discovery
+
+## Relationship validation update
+- [x] Implemented matching key checks, cardinality estimates, orphan and null counts, and fan-out warnings.
+- [x] Added user confirmation and in-session approval metadata; no executable joins yet.
+- [ ] Verify build and deployment.
+- [ ] Add manual column mapping, composite keys, model graph checks and persistent approval.
+- [ ] Connect approved relationships to report calculations and charts.
