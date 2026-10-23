@@ -45,6 +45,20 @@ Last reviewed: 2026-10-23
 - [ ] Connect SAP, Planview, and other enterprise sources
 - [ ] Power BI interoperability where feasible
 
+## Semantic data modeling — required reporting foundation
+- [ ] Data profiling for Excel, CSV and SQL sources: types, uniqueness, nulls, grain and candidate keys
+- [ ] AI-assisted semantic model proposal with explicit user review and approval
+- [ ] Visual model designer: tables, relationships, cardinality, filter direction and validation
+- [ ] Generate reusable dimensions (DimProject, DimDate, DimCostType) and fact tables based on declared grain
+- [ ] Support multiple fact tables and conformed dimensions; avoid fact-to-fact joins and double counting
+- [ ] Detect mismatched grains, many-to-many relationships, ambiguous paths and orphan keys
+- [ ] Semantic metrics and business glossary with versioned organization-specific definitions (BAC, AC, ETC, EAC, VAC)
+- [ ] Model preview and validation tests: row counts, join fan-out, totals before/after, key uniqueness
+- [ ] Manual modeling override, reversible proposals, lineage and model version history
+- [ ] Lightweight single-table mode for simple spreadsheets without forced star schema
+- [ ] SQL pushdown and query performance strategy for larger enterprise datasets
+- [ ] Organization-scoped model permissions and safe read-only source connections
+
 ## 3. Visual editor & dashboard builder
 - [x] Initial properties panel (code implemented)
 - [ ] Formal versioned VisualSpec JSON schema and validation
