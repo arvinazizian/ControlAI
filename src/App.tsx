@@ -7,6 +7,8 @@ import AdaptiveInterview from "./AdaptiveInterview";
 import ExperienceOnboarding, {type ExperienceProfile} from "./ExperienceOnboarding";
 import BridgeAssistant from "./BridgeAssistant";
 import RelationshipReview from "./RelationshipReview";
+import {joinApprovedTables} from "./safeJoin";
+import type {ApprovedRelationship} from "./relationshipAdvisor";
 import ReportDiscovery from "./ReportDiscovery";
 import type {Dataset} from "./dataAdvisor";
 import DataDecisionStudio from "./DataDecisionStudio";
@@ -57,6 +59,8 @@ export default function App() {
   function saveTerms(next:Term[]){setTerms(next);localStorage.setItem("controlai-glossary-v1",JSON.stringify(next));}
   const [projects,setProjects] = useState<Project[]>(sampleProjects);
   const [importedDatasets,setImportedDatasets] = useState<Dataset[]>([]);
+  const [approvedRelationships,setApprovedRelationships]=useState<Record<string,ApprovedRelationship>>({});
+  const reportDatasets=useMemo(()=>{const joined:Dataset[]=[];for(const r of Object.values(approvedRelationships)){for(const side of (["left","right"] as const)){if(side==="left"&&!r.rightUnique||side==="right"&&!r.leftUnique)continue;try{joined.push(joinApprovedTables(importedDatasets,r,side));}catch(e){console.warn("Approved join unavailable",e);}}}return [...importedDatasets,...joined];},[importedDatasets,approvedRelationships]);
   const [experience,setExperience] = useState<ExperienceProfile|null>(()=>{try{const raw=localStorage.getItem("controlai-experience-v1");return raw?JSON.parse(raw) as ExperienceProfile:null;}catch{return null;}});
   const [selected,setSelected] = useState<string | null>("P-102");
   const [error,setError] = useState("");
@@ -123,10 +127,10 @@ export default function App() {
     </section>}
     <div className="workspace-stage">
       <div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>
-      <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>setImportedDatasets(old=>[...old,...next])}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
-      <div style={{display:tab==="data"?"block":"none"}}><DataWorkbench language={language} datasets={importedDatasets} onChange={setImportedDatasets}/><DataDecisionStudio language={language} datasets={importedDatasets}/></div>
-      <div style={{display:tab==="relationships"?"block":"none"}}><BridgeAssistant language={language} datasets={importedDatasets} experience={experience}/><RelationshipReview language={language} datasets={importedDatasets}/></div>
-      {tab==="report"&&<><RealReportBuilder language={language} datasets={importedDatasets} answers={conversation}/>
+      <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>{setApprovedRelationships({});setImportedDatasets(old=>[...old,...next]);}}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
+      <div style={{display:tab==="data"?"block":"none"}}><DataWorkbench language={language} datasets={importedDatasets} onChange={next=>{setApprovedRelationships({});setImportedDatasets(next);}}/><DataDecisionStudio language={language} datasets={importedDatasets}/></div>
+      <div style={{display:tab==="relationships"?"block":"none"}}><BridgeAssistant language={language} datasets={importedDatasets} experience={experience}/><RelationshipReview language={language} datasets={importedDatasets} approved={approvedRelationships} onApprovedChange={setApprovedRelationships}/></div>
+      {tab==="report"&&<><RealReportBuilder language={language} datasets={reportDatasets} answers={conversation}/>
     {importedDatasets.length===0&&<><p className="notice">{language==="fa"?"نمودارهای زیر فقط داده نمایشی هستند؛ برای گزارش واقعی فایل وارد کن.":"Charts below are demo data only. Import files to build a real report."}</p>
 <section className="stats"><div className="stat"><span>{t("budget")}</span><strong>€{projects.reduce((a,p)=>a+p.budget,0).toFixed(1)}M</strong></div><div className="stat"><span>{t("forecast")}</span><strong>€{projects.reduce((a,p)=>a+p.forecast,0).toFixed(1)}M</strong></div><div className="stat"><span>{t("variance")}</span><strong className={projects.reduce((a,p)=>a+p.forecast-p.budget,0)>0?"bad":"good"}>€{projects.reduce((a,p)=>a+p.forecast-p.budget,0).toFixed(1)}M</strong></div></section>
     <div className="workspace"><section className="panel chart"><div className="panelhead"><div><h2>{t("financial")}</h2><p>{t("drill")}</p></div><span className="chip">{t("million")}</span></div><ReactECharts option={option} style={{height:380,width:"100%"}} onEvents={{click:(event:{dataIndex:number})=>setSelected(data[event.dataIndex]?.id??null)}} notMerge={true}/>{active&&<div className="drill"><div className="drillhead"><strong>{active.name} — {t("detail")}</strong><span>{active.id}</span></div><div className="drillstats"><div>Budget<strong>€{active.budget.toFixed(2)}M</strong></div><div>Forecast<strong>€{active.forecast.toFixed(2)}M</strong></div><div>Variance<strong className={active.forecast>active.budget?"bad":"good"}>€{(active.forecast-active.budget).toFixed(2)}M</strong></div></div></div>}</section>
