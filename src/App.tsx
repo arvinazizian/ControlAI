@@ -22,6 +22,8 @@ import ManualAIExchange from "./ManualAIExchange";
 import { preferredLanguage, translate, type Language, type TranslationKey } from "./i18n";
 import { loadTerms, type Term } from "./terminology";
 
+type WorkspaceTab = "report" | "sources" | "data" | "relationships" | "settings";
+type AssistantMode = "questions" | "ai" | "discovery";
 type Metric = "forecast" | "actual";
 type Direction = "horizontal" | "vertical";
 const palettes = { ocean: ["#528DFF", "#F3AF66"], emerald: ["#2BC4A6", "#B3DA6A"], violet: ["#9B83FF", "#F48AC0"] } as const;
