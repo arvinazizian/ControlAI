@@ -388,3 +388,8 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Validate currency/unit semantics and dates, support multi-table joins only after relationship approval.
 - [ ] Integrate conversational wizard directly with chart configuration and automated report templates.
 - [ ] Implement PDF/Excel export and persisted reports if requested.
+
+## Build verification retry
+- [x] Defined `WorkspaceTab` and `AssistantMode` in `src/App.tsx` to address the two reported TS2304 errors.
+- [ ] Confirm a fresh GitHub Actions `npm test` and `npm run build` run succeeds on the current main commit.
+- [ ] Confirm Vercel deployment succeeds after the platform build-rate limit clears.
