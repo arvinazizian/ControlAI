@@ -76,7 +76,7 @@ Last reviewed: 2026-10-23
 
 ## Learning engine and reusable knowledge
 - [x] Initial local approved-pattern registry with organization ID, column signatures and similarity matching (code only; not connected to wizard or production security)
-- [ ] Connect confirmed wizard models to pattern storage and recommend relevant patterns for new projects
+- [x] Connect wizard draft approval to browser-local pattern storage and suggest matches from manually entered column names (code committed; not source profiling or production-ready)
 - [ ] Version approved model templates, formulas, terminology, relationships and dashboard patterns
 - [ ] Feedback loop: accept/reject/edit decisions, provenance, quality metrics and rollback
 - [ ] Context-aware clarification questions driven by prior approvals and source profiling
