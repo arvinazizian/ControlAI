@@ -46,6 +46,9 @@ Last reviewed: 2026-10-23
 - [ ] Power BI interoperability where feasible
 
 ## Semantic data modeling — required reporting foundation
+- [x] Initial five-language guided questionnaire with multi-select answers and provisional model JSON (code committed; build/UI unverified)
+- [ ] Connect wizard answers to uploaded data profiling and generate actual tables and relationships
+- [ ] Adaptive follow-up questions based on source inspection, missing keys and ambiguous grain
 - [ ] Data profiling for Excel, CSV and SQL sources: types, uniqueness, nulls, grain and candidate keys
 - [ ] AI-assisted semantic model proposal with explicit user review and approval
 - [ ] Visual model designer: tables, relationships, cardinality, filter direction and validation
