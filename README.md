@@ -24,9 +24,16 @@ Then open the local URL shown by Vite. To check a production build, run `npm run
 - Export current visual settings and data to JSON
 - Experimental prompt field uses keyword matching, **not a connected AI model**
 
+## New: Excel + company vocabulary (prototype)
+
+- Import `.xlsx` workbooks, select worksheet and header row, map ID/project/BAC/EAC/AC columns, choose source units, and update chart data.
+- Edit and validate a company terminology JSON glossary. Glossary is stored **only in browser localStorage**, not synced across users or organizations.
+- A company AI connector is **not yet implemented**. Do not paste API keys, private company prompts, or confidential data into the public prototype.
+- The default definition of EAC is final total forecast; with a bottom-up ETC, EAC = AC + ETC. A field named `forecast` must mean final total forecast, not remaining-only forecast.
+
 ## Limitations
 
-This is an untested starter implementation. No login, tenant isolation, Excel/XLSX parser, server, database or AI service is connected. Do not upload confidential company data. CSV parser is intentionally basic and does not support quoted commas.
+This is an untested starter implementation. No login, tenant isolation, server, database or AI service is connected. Do not upload confidential company data. CSV parser is intentionally basic and does not support quoted commas.
 
 ## Roadmap
 
