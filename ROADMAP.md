@@ -12,7 +12,7 @@ Last reviewed: 2026-10-23
 - [x] Add README, gitignore, and starter configuration
 - [x] User reports seeing the deployed application in Vercel
 - [ ] Verify Vercel deployment URL, build logs, and production health
-- [ ] Add automated build/type-check workflow (GitHub Actions)
+- [x] Add GitHub Actions TypeScript/Vite build workflow (workflow committed; first run result not verified)
 - [ ] Add unit and UI interaction tests
 - [ ] Add staging environment and release process
 - [ ] Configure domain and production deployment settings
@@ -116,7 +116,8 @@ Last reviewed: 2026-10-23
 
 ## 6. Product quality & release
 - [x] Initial English/Dutch/Persian/Arabic/Turkish dictionaries, main-dashboard switcher, language persistence and Persian/Arabic RTL styles (code implemented; deployment verification pending)
-- [ ] Translate all secondary panels, validation messages, charts, exports and accessibility labels
+- [x] Pass locale to manual AI, Excel import and company glossary panels; translate initial controls (code committed)
+- [ ] Translate remaining secondary-panel descriptions, validation messages, charts, exports and accessibility labels
 - [ ] Add scalable language packs and translation completeness checks for additional languages
 - [ ] Separate interface locale, source-data language and AI prompt/response language
 - [ ] Per-user language preference synchronized across devices
