@@ -23,7 +23,7 @@ export function buildReport(table:Dataset,dimension:string,measures:Measure[]):R
 const norm=(s:string)=>s.toLowerCase().replace(/[\s_\-]/g,"");
 const patterns:Record<string,string[]>={cost:["budget","actual","forecast","cost","bac","eac"],sales:["sales","revenue","amount"],inventory:["stock","qty","quantity"],executive:["budget","actual","revenue","amount"],schedule:["delay","duration","days"]};
 export default function RealReportBuilder({datasets,answers,language}:{datasets:Dataset[];answers:ConversationAnswers;language:Language}){
- const fa=language==="fa";const [tableName,setTableName]=useState("");const [dimension,setDimension]=useState("");const [measureColumns,setMeasureColumns]=useState<string[]>([]);const [approved,setApproved]=useState(false);
+ const fa=language==="fa";const [tableName,setTableName]=useState("");const [dimension,setDimension]=useState("");const [measureColumns,setMeasureColumns]=useState<string[]>([]);const [approved,setApproved]=useState(false);const [unit,setUnit]=useState("unspecified");const [aggregation,setAggregation]=useState("sum");
  const table=datasets.find(d=>d.name===tableName)||datasets[0];const goal=answers.goal?.[0]||"executive";
  const candidates=useMemo(()=>table?.columns.filter(c=>(patterns[goal]||[]).some(p=>norm(c).includes(p)))||[],[table,goal]);
  const dimensionValue=dimension&&table?.columns.includes(dimension)?dimension:"";
@@ -39,9 +39,12 @@ export default function RealReportBuilder({datasets,answers,language}:{datasets:
  <strong>{fa?"ستون‌های عددی برای محاسبه":"Numeric measures"}</strong>
  <p>{fa?"پیشنهاد براساس هدف گفت‌وگو: ":"Suggested from your conversation goal: "}{candidates.join("، ")||"—"}</p>
  <div className="wizard-options">{table?.columns.filter(c=>c!==dimensionValue).map(c=><label className="wizard-option" key={c}><input type="checkbox" checked={selectedMeasures.includes(c)} onChange={e=>{setMeasureColumns(old=>e.target.checked?[...old,c]:old.filter(x=>x!==c));setApproved(false);}}/>{c}</label>)}</div>
- <button className="primary" disabled={!dimensionValue||!selectedMeasures.length} onClick={()=>setApproved(true)}>{fa?"تأیید ستون‌ها و ساخت نمودار":"Confirm columns and build chart"}</button>
+ <label>{fa?"واحد داده":"Data unit"}<select value={unit} onChange={e=>{setUnit(e.target.value);setApproved(false);}}><option value="unspecified">{fa?"هنوز مشخص نیست":"Not specified"}</option><option value="EUR">EUR</option><option value="USD">USD</option><option value="count">{fa?"تعداد":"Count"}</option><option value="days">{fa?"روز":"Days"}</option><option value="other">{fa?"واحد دیگر":"Other"}</option></select></label>
+ <label>{fa?"نوع محاسبه":"Aggregation"}<select value={aggregation} onChange={e=>{setAggregation(e.target.value);setApproved(false);}}><option value="sum">{fa?"جمع مقادیر":"Sum"}</option></select></label>
+ {unit==="unspecified"&&<p className="notice">{fa?"برای جلوگیری از گزارش گمراه‌کننده، واحد مقادیر را تأیید کن.":"Confirm units to avoid misleading report labels."}</p>}
+ <button className="primary" disabled={!dimensionValue||!selectedMeasures.length||unit==="unspecified"} onClick={()=>setApproved(true)}>{fa?"تأیید ستون‌ها و ساخت نمودار":"Confirm columns and build chart"}</button>
  {report?.error&&<p role="alert" className="bad">{report.error}</p>}
- {report?.data&&<><p role="status">{fa?"ردیف‌های معتبر":"Valid rows"}: {report.data.rowsUsed} · {fa?"ردیف‌های کنارگذاشته‌شده":"Skipped rows"}: {report.data.rowsSkipped}</p>{report.data.rowsSkipped>0&&<p className="bad">{fa?"ردیف‌های دارای مقدار خالی یا غیرعددی در محاسبات وارد نشده‌اند.":"Rows with missing or nonnumeric values were excluded."}</p>}
+ {report?.data&&<><p role="status">{fa?"واحد تأییدشده":"Confirmed unit"}: {unit} · {fa?"روش محاسبه":"Aggregation"}: {aggregation} · {fa?"ردیف‌های معتبر":"Valid rows"}: {report.data.rowsUsed} · {fa?"ردیف‌های کنارگذاشته‌شده":"Skipped rows"}: {report.data.rowsSkipped}</p>{report.data.rowsSkipped>0&&<p className="bad">{fa?"ردیف‌های دارای مقدار خالی یا غیرعددی در محاسبات وارد نشده‌اند.":"Rows with missing or nonnumeric values were excluded."}</p>}
  {report.data.groups.length>100?<p>{fa?"تعداد گروه‌ها زیاد است؛ خروجی CSV را بررسی کن.":"Too many groups for a readable chart; use the CSV export."}</p>:<ReactECharts option={option} style={{height:390,width:"100%"}}/>}
  <div style={{overflowX:"auto"}}><table><thead><tr><th>{report.data.dimension}</th>{report.data.measures.map(m=><th key={m.column}>{m.name}</th>)}</tr></thead><tbody>{report.data.groups.slice(0,100).map(g=><tr key={g.label}><td>{g.label}</td>{g.values.map((v,i)=><td key={i}>{v.toLocaleString()}</td>)}</tr>)}</tbody></table></div>
  <button className="secondary" onClick={exportCsv}>{fa?"دریافت CSV گزارش":"Export report CSV"}</button></>}
