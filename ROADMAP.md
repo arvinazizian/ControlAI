@@ -284,3 +284,13 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Support AI-generated follow-up questions via approved LLM provider with deterministic safety checks and human approval.
 - [ ] Fully localize all question text and choices in all five supported languages.
 - [ ] Run TypeScript/Vite build, tests and deployment verification. No successful verification yet.
+
+## User answer validation
+- [x] Added answer-validation engine with verified / needs_review / contradicted outcomes and supporting evidence (code committed; build unverified).
+- [x] Check named key columns against imported data, report duplicate and missing values; reject names absent from imported columns.
+- [x] Require review for business semantics, joining differently named keys, source claims and missing-value treatment; no automatic execution.
+- [x] Show validation feedback and record validation status alongside browser-local answers; previous answers without status remain legacy-unverified.
+- [ ] Revalidate all remembered answers after source content changes even when column names stay identical.
+- [ ] Build full contradiction resolution dialogue and explicit correction workflows for key selection, join grain, mapping and date meaning.
+- [ ] Test false positives, misleading responses, adversarial data, type mismatches, composite keys and report correctness.
+- [ ] Verify TypeScript build, UI behavior and deployed release.
