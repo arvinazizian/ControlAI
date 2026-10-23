@@ -61,7 +61,7 @@ export default function App() {
   const [showWorkspace,setShowWorkspace] = useState(restoredSession.open);
   const [conversation,setConversation] = useState<ConversationAnswers>(restoredSession.conversation);
   const [assistantOpen,setAssistantOpen] = useState(true);
-  const [assistantMode,setAssistantMode] = useState<AssistantMode>("questions");
+  const [assistantMode,setAssistantMode] = useState<AssistantMode>("ai");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
   const t=(key:TranslationKey)=>translate(language,key);
   function changeLanguage(next:Language){setLanguage(next);localStorage.setItem("controlai-language",next);document.documentElement.lang=next;document.documentElement.dir=next==="fa"||next==="ar"?"rtl":"ltr";}
@@ -128,7 +128,7 @@ export default function App() {
         {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
           <div className="assistant-mode-tabs"><button className={assistantMode==="questions"?"active":""} onClick={()=>setAssistantMode("questions")}>{language==="fa"?"سؤال بعدی":"Next question"}</button><button className={assistantMode==="ai"?"active":""} onClick={()=>setAssistantMode("ai")}>AI</button><button className={assistantMode==="discovery"?"active":""} onClick={()=>setAssistantMode("discovery")}>{language==="fa"?"هدف گزارش":"Report goals"}</button></div>
           {assistantMode==="questions"&&<AdaptiveInterview language={language} datasets={importedDatasets} experience={experience}/>}
-          {assistantMode==="ai"&&<AIGuidance language={language} datasets={importedDatasets} experience={experience}/>}
+          {assistantMode==="ai"&&<AIGuidance language={language} datasets={importedDatasets} experience={experience} reportIntent={conversation}/>}
           {assistantMode==="discovery"&&<ReportDiscovery language={language} datasets={importedDatasets}/>}
           <button className="secondary" onClick={()=>setExperience(null)}>{language==="fa"?"تغییر سطح راهنمایی":"Change guidance level"}</button>
         </>}
