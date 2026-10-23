@@ -17,10 +17,10 @@ function parseResponse(raw:string):VisualChange {
  if(p.showLabels!==undefined&&typeof p.showLabels!=="boolean")throw Error("showLabels must be boolean");
  return p as VisualChange;
 }
-type Props={terms:Term[];language:Language;onApply:(change:VisualChange)=>void};
+type Props={terms:Term[];language?:Language;onApply:(change:VisualChange)=>void};
 export default function ManualAIExchange({terms,language,onApply}:Props){
  const labels={"en":["Manual AI exchange — Copy / Paste","Copy prompt","Validate and apply response"],"nl":["Handmatige AI-uitwisseling","Prompt kopiëren","Antwoord controleren en toepassen"],"fa":["ارتباط دستی با هوش مصنوعی","کپی پرامپت","بررسی و اعمال پاسخ"],"ar":["تبادل يدوي مع الذكاء الاصطناعي","نسخ الطلب","التحقق من الاستجابة وتطبيقها"],"tr":["Manuel AI alışverişi","İstemi kopyala","Yanıtı doğrula ve uygula"]};
- const ui=labels[language];
+ const ui=labels[language??"en"];
  const [request,setRequest]=useState("Compare Budget with EAC. Make the bars horizontal and sort by variance.");
  const [response,setResponse]=useState("");
  const [message,setMessage]=useState("");
