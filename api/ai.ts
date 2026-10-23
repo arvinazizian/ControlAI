@@ -1,7 +1,7 @@
 // Vercel serverless function. Secrets stay on server; never send full customer tables.
 export default async function handler(req:any,res:any){
  if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
- const key=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN,model=process.env.CONTROLAI_MODEL||"openai/gpt-5.6-sol";
+ const key=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN,model=process.env.CONTROLAI_MODEL||"openai/gpt-4o-mini";
  if(!key)return res.status(503).json({error:"AI Gateway authentication is not configured. Add AI_GATEWAY_API_KEY to the Vercel project or enable Vercel OIDC."});
  const body=req.body;
  if(!body||typeof body!=="object"||!["discovery","data_quality","relationships","model","report"].includes(body.stage))return res.status(400).json({error:"Invalid stage"});
@@ -16,7 +16,7 @@ export default async function handler(req:any,res:any){
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),18000);
  let response:Response;
  try{response=await fetch("https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",signal:controller.signal,headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify({stage:body.stage,profile,metadata,reportIntent,previous})}],temperature:0.2,max_tokens:700,response_format:{type:"json_object"}})});}finally{clearTimeout(timeout);}
- if(!response.ok)return res.status(502).json({error:"AI provider unavailable",status:response.status});
+ if(!response.ok){const failure=await response.json().catch(()=>({}));const providerMessage=typeof failure?.error?.message==="string"?failure.error.message:"";const safe=providerMessage.slice(0,240).replace(/(vck_[A-Za-z0-9_-]+|sk-[A-Za-z0-9_-]+)/g,"[redacted]");return res.status(502).json({error:response.status===401||response.status===403?"AI Gateway rejected the API key":response.status===402?"AI Gateway credit is unavailable":response.status===404?"The selected AI model is unavailable":"AI provider unavailable",status:response.status,detail:safe});}
  const result=await response.json();const raw=result?.choices?.[0]?.message?.content;if(typeof raw!=="string")throw Error("Empty AI response");
  const parsed=JSON.parse(raw);
  if(typeof parsed.question!=="string"||!Array.isArray(parsed.options)||!Array.isArray(parsed.evidenceNeeded)||!Array.isArray(parsed.proposedActions)||typeof parsed.reason!=="string"||typeof parsed.confidence!=="number")throw Error("Invalid AI response");
