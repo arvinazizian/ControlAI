@@ -74,6 +74,19 @@ Last reviewed: 2026-10-23
 - [ ] Templates for Project Control reports
 - [ ] Export dashboards to PDF/image and sharing controls
 
+## Learning engine and reusable knowledge
+- [x] Initial local approved-pattern registry with organization ID, column signatures and similarity matching (code only; not connected to wizard or production security)
+- [ ] Connect confirmed wizard models to pattern storage and recommend relevant patterns for new projects
+- [ ] Version approved model templates, formulas, terminology, relationships and dashboard patterns
+- [ ] Feedback loop: accept/reject/edit decisions, provenance, quality metrics and rollback
+- [ ] Context-aware clarification questions driven by prior approvals and source profiling
+- [ ] Separate global curated templates from tenant-private knowledge; prohibit cross-tenant leakage
+- [ ] Secure server-side tenant isolation, RLS, permissions, audit logs and retention controls
+- [ ] Optional consent-based, anonymized cross-organization learning with privacy review
+- [ ] Evaluate recommendations on held-out datasets; guard against incorrect auto-learning
+- [ ] Retrieval-based learning before considering model fine-tuning or training
+- [ ] Reuse learned patterns across projects with human approval and data quality checks
+
 ## 4. AI-assisted design
 - [x] Manual AI exchange: generate and copy prompt, paste JSON response, validate and apply supported visual settings (code implemented; deployment verification pending)
 - [ ] Extend manual AI response schema for chart creation and approved company terminology updates
