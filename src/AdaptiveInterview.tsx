@@ -1,0 +1,18 @@
+import {useMemo,useState} from "react";
+import type {Dataset} from "./dataAdvisor";
+import type {Language} from "./i18n";
+import type {ExperienceProfile} from "./ExperienceOnboarding";
+import {learnedSuggestions,nextQuestions,rememberAnswer,signature,type LearningAnswer} from "./adaptiveQuestions";
+const key="controlai-approved-answers-v1";
+function load():LearningAnswer[]{try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.filter(x=>typeof x.id==="string"&&typeof x.value==="string"&&typeof x.sourceSignature==="string"):[];}catch{return [];}}
+export default function AdaptiveInterview({datasets,language,experience}:{datasets:Dataset[];language:Language;experience:ExperienceProfile|null}){
+ const [answers,setAnswers]=useState<LearningAnswer[]>(load);const [choice,setChoice]=useState("");const [custom,setCustom]=useState("");const [showHistory,setShowHistory]=useState(false);
+ const pending=useMemo(()=>nextQuestions(datasets,answers,experience?.level??"beginner"),[datasets,answers,experience?.level]);
+ const history=learnedSuggestions(answers,datasets),current=pending[0];const fa=language==="fa";
+ function save(){if(!current)return;const value=choice==="custom"?custom.trim():choice;if(!value)return;const next=rememberAnswer(answers,{id:current.id,value,sourceSignature:signature(datasets),at:new Date().toISOString()});setAnswers(next);localStorage.setItem(key,JSON.stringify(next));setChoice("");setCustom("");}
+ function undo(id:string){const next=answers.filter(a=>!(a.id===id&&a.sourceSignature===signature(datasets)));setAnswers(next);localStorage.setItem(key,JSON.stringify(next));}
+ return <section className="panel import"><h2>{fa?"گفت‌وگوی هوشمند با داده‌ها":"Adaptive data interview"}</h2><p>{fa?"سؤال بعدی براساس فایل‌ها، پاسخ‌های قبلی و سطح آشنایی شما انتخاب می‌شود. پاسخ‌ها پیشنهاد هستند و هیچ داده‌ای خودکار تغییر نمی‌کند.":"The next question depends on your data, prior answers and experience. No source data changes automatically."}</p>
+ {current?<div className="wizard-result"><p>{fa?"سؤال بعدی":"Next question"} · {pending.length} {fa?"موضوع باقی‌مانده":"remaining topics"}</p><h3>{current.prompt}</h3>{experience?.guidance!=="guided"&&<p>{current.reason}</p>}<div className="wizard-options">{current.options.map(o=><label className="wizard-option" key={o}><input type="radio" name="adaptive-answer" checked={choice===o} onChange={()=>setChoice(o)}/>{o}</label>)}<label className="wizard-option"><input type="radio" name="adaptive-answer" checked={choice==="custom"} onChange={()=>setChoice("custom")}/>{fa?"پاسخ دیگری دارم":"Other answer"}</label></div>{choice==="custom"&&<textarea value={custom} onChange={e=>setCustom(e.target.value)} placeholder={fa?"پاسخ خودتان را بنویسید":"Write your answer"}/>}<button className="primary" disabled={!choice||(choice==="custom"&&!custom.trim())} onClick={save}>{fa?"ثبت پاسخ و سؤال بعدی":"Save and ask next"}</button></div>:<p>{fa?"فعلاً سؤال حل‌نشده‌ای شناسایی نشد. با ورود فایل جدید، سؤال‌ها دوباره بررسی می‌شوند.":"No outstanding questions detected. Uploading new files triggers a fresh review."}</p>}
+ <button className="secondary" onClick={()=>setShowHistory(v=>!v)}>{fa?"نمایش و اصلاح پاسخ‌های یادگرفته‌شده":"Review learned answers"} ({history.length})</button>{showHistory&&history.map(a=><div key={a.id} className="wizard-option"><strong>{a.id}</strong>: {a.value} <button className="secondary" onClick={()=>undo(a.id)}>{fa?"اصلاح / حذف":"Undo"}</button></div>)}
+ <p>{fa?"یادگیری فعلی مبتنی بر قوانین و ذخیره پاسخ‌ها در همین مرورگر است؛ مدل هوش مصنوعی هنوز آموزش داده نمی‌شود.":"Current learning is rule-based and browser-local; no AI model is being trained."}</p></section>;
+}
