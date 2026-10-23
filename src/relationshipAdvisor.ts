@@ -25,7 +25,7 @@ export function findRelationships(datasets:Dataset[]):RelationshipCandidate[]{
  }
  return out.sort((a,b)=>Number(a.status==="unsafe")-Number(b.status==="unsafe")||b.matchedLeft+b.matchedRight-a.matchedLeft-a.matchedRight);
 }
-export type ApprovedRelationship=RelationshipCandidate&{approvedAt:string;status:"approved"};
+export type ApprovedRelationship=Omit<RelationshipCandidate,"status">&{approvedAt:string;status:"approved"};
 export function approveRelationship(r:RelationshipCandidate,confirmedGrain:boolean):ApprovedRelationship{
  if(r.status==="unsafe"||!confirmedGrain)throw Error("Relationship is unsafe or row grain is not confirmed");
  return {...r,status:"approved",approvedAt:new Date().toISOString()};
