@@ -1,0 +1,101 @@
+# ControlAI — Open Development Checklist
+
+> Living project checklist. Update this file whenever a feature is implemented, tested, or added to the plan.
+> **[x] = implemented/confirmed; [ ] = not complete.** A deployed UI is not proof that every interaction has been tested.
+
+Last reviewed: 2026-10-23
+
+## 0. Project setup
+- [x] Create independent GitHub repository `arvinazizian/ControlAI`
+- [x] Add React + TypeScript + Vite application source
+- [x] Add Apache ECharts renderer and sample dataset
+- [x] Add README, gitignore, and starter configuration
+- [x] User reports seeing the deployed application in Vercel
+- [ ] Verify Vercel deployment URL, build logs, and production health
+- [ ] Add automated build/type-check workflow (GitHub Actions)
+- [ ] Add unit and UI interaction tests
+- [ ] Add staging environment and release process
+- [ ] Configure domain and production deployment settings
+
+## 1. Visual B — Comparison Bars (MVP)
+- [x] Render Budget vs Forecast/Actual as grouped bars (code implemented)
+- [x] Switch horizontal/vertical orientation (code implemented)
+- [x] Switch color palettes (code implemented)
+- [x] Show/hide value labels (code implemented)
+- [x] Sort projects by name or forecast variance (code implemented)
+- [x] Click bar for project detail panel (code implemented)
+- [x] Show budget, forecast and variance summary cards (code implemented)
+- [x] Export visual settings and data as JSON (code implemented)
+- [ ] Test every control on mobile and desktop
+- [ ] Add zoom, selection, filtering, and cross-filtering
+- [ ] Support units, currencies, precision, and locale formatting
+- [ ] Add conditional formatting and target/reference lines
+- [ ] Add accessibility and responsive improvements
+
+## 2. Data connectivity
+- [x] Include demo project financial dataset
+- [x] Basic client-side CSV import for fixed columns (code implemented)
+- [ ] Robust CSV parsing and data quality checks
+- [ ] Excel XLSX upload with multiple sheets
+- [ ] Column mapping and inferred data types
+- [ ] Reusable datasets and upload history
+- [ ] Connect read-only SQL/PostgreSQL
+- [ ] Scheduled refresh and incremental updates
+- [ ] Connect SAP, Planview, and other enterprise sources
+- [ ] Power BI interoperability where feasible
+
+## 3. Visual editor & dashboard builder
+- [x] Initial properties panel (code implemented)
+- [ ] Formal versioned VisualSpec JSON schema and validation
+- [ ] Save/reopen/edit visual without losing settings
+- [ ] Undo/redo and version history
+- [ ] Multiple preview alternatives for each visualization request
+- [ ] Drag-and-drop dashboard canvas, layout, resize
+- [ ] Additional chart types: line, stacked bar, waterfall, S-curve, KPI
+- [ ] Interactions between visuals, drill-through, tooltips
+- [ ] Templates for Project Control reports
+- [ ] Export dashboards to PDF/image and sharing controls
+
+## 4. AI-assisted design
+- [x] Experimental text-command UI with limited keyword rules (NOT real AI)
+- [ ] Connect AI model via validated backend API
+- [ ] Local Ollama option for development
+- [ ] Natural-language chart creation and edits in Persian/English
+- [ ] Generate multiple working chart variants and compare them
+- [ ] Accept iterative prompts and user selection
+- [ ] Support screenshot/reference-driven visual suggestions
+- [ ] Validate AI-proposed operations; never execute arbitrary AI SQL
+- [ ] Audit log and user approval for sensitive operations
+
+## 5. Backend, security & SaaS
+- [ ] API backend (FastAPI or equivalent)
+- [ ] Supabase/PostgreSQL integration
+- [ ] Authentication and account management
+- [ ] Organizations/workspaces and role-based permissions
+- [ ] Multi-tenant isolation with Row Level Security
+- [ ] Encrypted secrets, least-privilege connectors, secure uploads
+- [ ] Rate limits, monitoring, backups, audit trails
+- [ ] Data retention/deletion, privacy and GDPR review
+- [ ] Billing, subscriptions, and usage quotas
+- [ ] Confirm commercial hosting terms before public paid launch
+
+## 6. Product quality & release
+- [ ] Farsi/Dutch/English localization and RTL support
+- [ ] Onboarding, sample templates, help pages
+- [ ] Performance testing with larger datasets
+- [ ] Error handling and loading/empty states
+- [ ] User feedback and usability testing
+- [ ] Public beta release criteria and release notes
+
+## Next recommended sprint
+1. Verify deployed URL and mobile/desktop chart interactions.
+2. Add automated build checks and fix any runtime issues.
+3. Implement Excel upload and column mapping.
+4. Define VisualSpec schema and persist visuals.
+5. Add multiple live preview alternatives.
+
+## Maintenance rules
+- Add new requested work under the relevant section as an unchecked item.
+- Tick an item only after its implementation is verified; note when only code is present.
+- Keep incomplete work unchecked, even when related UI exists.
+- Preserve completed history; use Git commits to track changes.
