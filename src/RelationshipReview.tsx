@@ -3,22 +3,22 @@ import {joinApprovedTables} from "./safeJoin";
 import type {Dataset} from "./dataAdvisor";
 import type {Language} from "./i18n";
 import {approveRelationship,findRelationships,type ApprovedRelationship} from "./relationshipAdvisor";
-export default function RelationshipReview({datasets,language}:{datasets:Dataset[];language:Language}){
- const [confirmed,setConfirmed]=useState<Record<string,boolean>>({});const [approved,setApproved]=useState<Record<string,ApprovedRelationship>>({});const [error,setError]=useState("");
+export default function RelationshipReview({datasets,language,approved,onApprovedChange}:{datasets:Dataset[];language:Language;approved:Record<string,ApprovedRelationship>;onApprovedChange:(next:Record<string,ApprovedRelationship>)=>void}){
+ const [confirmed,setConfirmed]=useState<Record<string,boolean>>({});const [error,setError]=useState("");
  const suggestions=useMemo(()=>findRelationships(datasets),[datasets]);
- useEffect(()=>{setConfirmed({});setApproved({});setError("");},[datasets]);
+ useEffect(()=>{setConfirmed({});onApprovedChange({});setError("");},[datasets]);
  const fa=language==="fa";const title=fa?"بررسی ارتباط واقعی جدول‌ها":"Validated table relationships";
- return <section className="panel import"><h2>{title}</h2><p>{fa?"کلیدهای مشترک، تعداد تطابق‌ها، رکوردهای بدون ارتباط و احتمال چندبرابر شدن ردیف‌ها بررسی می‌شوند. هیچ JOIN یا تغییری در داده اصلی اجرا نمی‌شود.":"Shared keys, matches, orphan records and fan-out risks are inspected. No joins or source changes are executed."}</p>
+ return <section className="panel import"><h2>{title}</h2><p>{fa?"کلیدهای مشترک، تعداد تطابق‌ها، رکوردهای بدون ارتباط و احتمال چندبرابر شدن ردیف‌ها بررسی می‌شوند. اتصال فقط بعد از تأیید انجام می‌شود و داده اصلی تغییر نمی‌کند.":"Shared keys, matches, orphan records and fan-out risks are inspected. Joins run only after approval; source data is not modified."}</p>
  {datasets.length<2?<p>{fa?"برای بررسی ارتباط، حداقل دو جدول وارد کنید.":"Import at least two tables."}</p>:suggestions.length===0?<p>{fa?"ستون مشترک مناسبی پیدا نشد. امکان تعریف نگاشت دستی ستون‌ها هنوز پیاده‌سازی نشده است.":"No shared column names detected. Manual key mapping is pending."}</p>:suggestions.map(r=><div key={r.id} className="wizard-option" style={{display:"block",marginBottom:12}}>
  <strong>{r.left} [{r.leftColumn}] ↔ {r.right} [{r.rightColumn}]</strong>
  <p>{r.cardinality.split("_").join(" → ")} · {fa?"تطابق":"Matches"}: {r.matchedLeft}/{r.leftRows} ↔ {r.matchedRight}/{r.rightRows} · {fa?"بدون تطابق":"Orphans"}: {r.leftOrphans} / {r.rightOrphans} · {fa?"کلید خالی":"Missing keys"}: {r.leftNulls} / {r.rightNulls}</p>
  {r.reasons.map((reason,i)=><p key={i}>{reason}</p>)}
  {r.status==="unsafe"&&<p role="alert" className="bad">{fa?"ارتباط ناامن؛ تأیید غیرفعال است.":"Unsafe candidate; approval blocked."}</p>}
  <label className="check"><input type="checkbox" checked={!!confirmed[r.id]} onChange={e=>setConfirmed(old=>({...old,[r.id]:e.target.checked}))}/>{fa?"معنای کلید و سطح هر ردیف را بررسی کرده‌ام.":"I verified the business meaning of the key and the grain of both tables."}</label>
- <button className="secondary" disabled={r.status==="unsafe"||!confirmed[r.id]||!!approved[r.id]} onClick={()=>{try{const a=approveRelationship(r,!!confirmed[r.id]);setApproved(old=>({...old,[r.id]:a}));setError("");}catch(e){setError(String(e));}}}>{approved[r.id]?(fa?"تأیید شد":"Approved"):(fa?"تأیید ارتباط پیشنهادی":"Approve candidate")}</button>
+ <button className="secondary" disabled={r.status==="unsafe"||!confirmed[r.id]||!!approved[r.id]} onClick={()=>{try{const a=approveRelationship(r,!!confirmed[r.id]);onApprovedChange({...approved,[r.id]:a});setError("");}catch(e){setError(String(e));}}}>{approved[r.id]?(fa?"تأیید شد":"Approved"):(fa?"تأیید ارتباط پیشنهادی":"Approve candidate")}</button>
  </div>)}
  {error&&<p role="alert" className="bad">{error}</p>}
  {Object.values(approved).map(r=><div key={r.id} className="panel"><h3>{fa?"پیش‌نمایش اتصال ایمن":"Safe join preview"}: {r.left} ↔ {r.right}</h3>{(["left","right"] as const).filter(side=>side==="left"?r.rightUnique:r.leftUnique).map(side=>{try{const joined=joinApprovedTables(datasets,r,side);return <div key={side}><p>{fa?"جدول اصلی":"Fact table"}: {side==="left"?r.left:r.right} · {fa?"تعداد ردیف‌های نتیجه":"Result rows"}: {joined.rows.length}</p><div style={{overflowX:"auto"}}><table><thead><tr>{joined.columns.map(col=><th key={col}>{col}</th>)}</tr></thead><tbody>{joined.rows.slice(0,5).map((row,i)=><tr key={i}>{joined.columns.map(col=><td key={col}>{String(row[col]??"—")}</td>)}</tr>)}</tbody></table></div></div>;}catch(e){return <p role="alert" key={side} className="bad">{String(e)}</p>;}})}</div>)}
- {Object.keys(approved).length>0&&<><h3>{fa?"مدل ارتباطی تأییدشده (پیش‌نویس)":"Approved relationship metadata (draft)"}</h3><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{JSON.stringify(Object.values(approved).map(({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})=>({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})),null,2)}</pre><p>{fa?"هنوز رابطه اجرایی، JOIN و اتصال به نمودار ساخته نشده است.":"Executable joins, semantic model and charts are not connected yet."}</p></>}
+ {Object.keys(approved).length>0&&<><h3>{fa?"مدل ارتباطی تأییدشده (پیش‌نویس)":"Approved relationship metadata (draft)"}</h3><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{JSON.stringify(Object.values(approved).map(({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})=>({id,left,right,leftColumn,rightColumn,cardinality,approvedAt})),null,2)}</pre><p>{fa?"رابطه تأییدشده برای گزارش‌ساز قابل استفاده است.":"Approved safe joins are available to the report builder."}</p></>}
  </section>;
 }
