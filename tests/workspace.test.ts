@@ -1,5 +1,6 @@
 import {describe,it,expect} from "vitest";
 import {joinApprovedTables} from "../src/safeJoin";
+import {buildReport} from "../src/RealReportBuilder";
 import {approveRelationship} from "../src/relationshipAdvisor";
 import {applyDataChange,editDataCell,initialHistory,redoDataChange,renameDataColumn,undoDataChange} from "../src/dataHistory";
 import {findRelationships} from "../src/relationshipAdvisor";
@@ -45,5 +46,28 @@ describe("safe executable joins",()=>{
   const approved=approveRelationship(findRelationships([a,b])[0],true);
   const duplicate={...a,rows:[a.rows[0],a.rows[0]]};
   expect(()=>joinApprovedTables([duplicate,b],approved,"right")).toThrow("duplicate keys");
+ });
+});
+
+describe("two-file report workflow",()=>{
+ it("imports independent tables, approves safe join, groups, and prepares CSV-compatible output",()=>{
+  const projects={name:"Projects",columns:["ProjectID","ProjectName"],rows:[{ProjectID:"P1",ProjectName:"Alpha"},{ProjectID:"P2",ProjectName:"Beta"}]};
+  const costs={name:"Costs",columns:["ProjectID","Cost"],rows:[{ProjectID:"P1",Cost:100},{ProjectID:"P1",Cost:50},{ProjectID:"P2",Cost:75}]};
+  const relation=approveRelationship(findRelationships([projects,costs])[0],true);
+  const joined=joinApprovedTables([projects,costs],relation,"right");
+  expect(joined.rows).toHaveLength(costs.rows.length);
+  const report=buildReport(joined,"Projects.ProjectName",[{name:"Cost",column:"Cost"}]);
+  expect(report.rowsUsed).toBe(3);
+  expect(report.rowsSkipped).toBe(0);
+  expect(report.groups).toEqual([{label:"Alpha",values:[150]},{label:"Beta",values:[75]}]);
+  const csvRows=[[report.dimension,...report.measures.map(m=>m.name)],...report.groups.map(g=>[g.label,...g.values.map(String)])];
+  expect(csvRows).toEqual([["Projects.ProjectName","Cost"],["Alpha","150"],["Beta","75"]]);
+ });
+ it("flags unmatched lookup values rather than silently attributing costs",()=>{
+  const joined=joinApprovedTables([a,b],approveRelationship(findRelationships([a,b])[0],true),"right");
+  const report=buildReport(joined,"Projects.Name",[{name:"Cost",column:"Cost"}]);
+  expect(report.rowsUsed).toBe(2);
+  expect(report.rowsSkipped).toBe(1);
+  expect(report.groups).toEqual([{label:"One",values:[30]}]);
  });
 });
