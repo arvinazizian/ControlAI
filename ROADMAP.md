@@ -351,3 +351,15 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Run actual browser end-to-end tests of all previously developed features, including mobile.
 - [ ] Harden AI endpoint authentication, usage limits and privacy consent before enabling AI in production.
 - [ ] Complete semantic model integration, header approval, persistent audit and remaining user flows.
+
+## Guided single-workspace redesign
+- [x] Reorganized the formerly stacked tools into five navigable stages: Sources, Data, Relationships, Report, Settings.
+- [x] Added collapsible assistant dock near the top, with modes for dynamic questions, AI and report goals; onboarding appears there first.
+- [x] Added previous/next stage controls and responsive stage navigation.
+- [x] Kept data and relationship stages mounted while hidden to preserve in-session workbench state on tab switches.
+- [!] The report view still displays existing demo/sample-project charts unless users import through the separate mapped Excel/CSV project importer. Multi-source data is not yet compiled into a real report.
+- [!] Vercel commit status for f7b271a reports failure due to build-rate-limit upgrade link; no successful production deployment confirmed.
+- [ ] Verify CI and TypeScript build of new layout, browser interactions and responsive/mobile behavior.
+- [ ] Integrate guided AI questions with stage progression and approved actions automatically; currently AI questions require opening the dock and manual generation.
+- [ ] Produce real report metrics/charts from validated joined imported datasets rather than sample data.
+- [ ] Consolidate duplicate importers and preserve history across all stages and sessions.
