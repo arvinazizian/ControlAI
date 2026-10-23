@@ -379,3 +379,12 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Validate chosen column data types, units, table relationships and aggregate grain before calculating metrics.
 - [ ] Turn validated requirements into real-data charts and downloadable reports.
 - [ ] CI/browser test and deployment verification pending; Vercel build-rate limit remains a release blocker.
+
+## Real report generation — first executable slice
+- [x] Added RealReportBuilder with explicit single-table grouping, user-selected numeric measures, strict numeric parsing, skipped-row counts, bar charts, data table and CSV export.
+- [x] Disabled the sample-project chart view when imported datasets are available to avoid mixing demo and actual data.
+- [x] Report builder uses conversation goal for column suggestions and requires explicit column confirmation.
+- [ ] Verify CI and browser build; no successful deployment has been observed for this change.
+- [ ] Validate currency/unit semantics and dates, support multi-table joins only after relationship approval.
+- [ ] Integrate conversational wizard directly with chart configuration and automated report templates.
+- [ ] Implement PDF/Excel export and persisted reports if requested.
