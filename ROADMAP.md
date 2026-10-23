@@ -36,8 +36,9 @@ Last reviewed: 2026-10-23
 - [x] Include demo project financial dataset
 - [x] Basic client-side CSV import for fixed columns (code implemented)
 - [ ] Robust CSV parsing and data quality checks
-- [ ] Excel XLSX upload with multiple sheets
-- [ ] Column mapping and inferred data types
+- [x] XLSX upload with sheet selection (code implemented; build/UI verification pending)
+- [x] Manual column mapping and basic header matching (code implemented; build/UI verification pending)
+- [ ] Full data type inference and advanced Excel validation
 - [ ] Reusable datasets and upload history
 - [ ] Connect read-only SQL/PostgreSQL
 - [ ] Scheduled refresh and incremental updates
@@ -57,6 +58,11 @@ Last reviewed: 2026-10-23
 - [ ] Export dashboards to PDF/image and sharing controls
 
 ## 4. AI-assisted design
+- [x] Editable company terminology glossary with alias collision validation (browser-local prototype)
+- [ ] Company-specific glossary stored securely per organization
+- [ ] Authorized company AI integration (API endpoint, auth, permission scopes)
+- [ ] Approved import of company AI prompt, instructions, and terminology with review/versioning
+- [ ] Enterprise data governance: redact sensitive context before external model calls
 - [x] Experimental text-command UI with limited keyword rules (NOT real AI)
 - [ ] Connect AI model via validated backend API
 - [ ] Local Ollama option for development
@@ -90,7 +96,7 @@ Last reviewed: 2026-10-23
 ## Next recommended sprint
 1. Verify deployed URL and mobile/desktop chart interactions.
 2. Add automated build checks and fix any runtime issues.
-3. Implement Excel upload and column mapping.
+3. Verify Excel upload, sheet selection, and column mapping in deployment.
 4. Define VisualSpec schema and persist visuals.
 5. Add multiple live preview alternatives.
 
