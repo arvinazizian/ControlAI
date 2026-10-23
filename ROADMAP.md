@@ -58,6 +58,9 @@ Last reviewed: 2026-10-23
 - [ ] Export dashboards to PDF/image and sharing controls
 
 ## 4. AI-assisted design
+- [x] Manual AI exchange: generate and copy prompt, paste JSON response, validate and apply supported visual settings (code implemented; deployment verification pending)
+- [ ] Extend manual AI response schema for chart creation and approved company terminology updates
+- [ ] Manual AI prompt templates per organization with permissions and versioning
 - [x] Editable company terminology glossary with alias collision validation (browser-local prototype)
 - [ ] Company-specific glossary stored securely per organization
 - [ ] Authorized company AI integration (API endpoint, auth, permission scopes)
