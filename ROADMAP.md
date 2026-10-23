@@ -174,3 +174,13 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - Tick an item only after its implementation is verified; note when only code is present.
 - Keep incomplete work unchecked, even when related UI exists.
 - Preserve completed history; use Git commits to track changes.
+
+## Decision-driven preparation, measures and visual authoring
+- [x] Initial read-only data-quality suggestions (missing values, duplicate identifiers, date issues and calendar questions); manual JSON sample input only, build unverified
+- [x] Initial five-language UI for suggest / guided / custom formula modes and draft EAC, VAC, variance measures (not executable)
+- [ ] Connect decisions directly to all uploaded and connected datasets; infer questions dynamically
+- [ ] Preview transformations and before/after totals, require approval, record reversible steps
+- [ ] Validate formulas against semantic model, types, granularity, units and permissions; safe calculation runtime
+- [ ] Natural-language and code-assisted SQL/DAX/transform generation with sandbox and explicit approval
+- [ ] Recommend visual types and chart measures using validated model and reporting intent
+- [ ] Auto-suggest date dimension, surrogate keys and rolling three-month measures without inventing data
