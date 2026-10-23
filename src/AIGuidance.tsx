@@ -14,7 +14,7 @@ export default function AIGuidance({datasets,language,experience,reportIntent}:{
    // Only schema and aggregate statistics leave the browser; never raw row values.
    const metadata=datasets.map(d=>({name:d.name.slice(0,100),columns:d.columns.slice(0,100).map(c=>c.slice(0,100)),rowCount:d.rows.length,missingByColumn:d.columns.slice(0,100).map(c=>({column:c,missing:d.rows.filter(r=>r[c]==null||String(r[c]).trim()==="").length}))}));
    const response=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({stage,profile:{language,level:experience?.level??"beginner",guidance:experience?.guidance??"guided",tools:experience?.tools??[]},metadata,reportIntent:reportIntent||{},previous})});
-   const result=await response.json();if(!response.ok)throw Error(result.error||"AI unavailable");
+   const result=await response.json();if(!response.ok)throw Error([result.error,result.status?`HTTP ${result.status}`:"",result.detail].filter(Boolean).join(" — ")||"AI unavailable");
    if(typeof result.question!=="string"||!Array.isArray(result.options))throw Error("Invalid response");
    setReply(result as Reply);setAnswer("");
   }catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}
