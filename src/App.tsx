@@ -4,6 +4,7 @@ import { BarChart3, Download, RotateCcw, Sparkles } from "lucide-react";
 import { sampleProjects, type Project } from "./data";
 import ExcelImport from "./ExcelImport";
 import CompanyGlossary from "./CompanyGlossary";
+import ManualAIExchange from "./ManualAIExchange";
 import { loadTerms, type Term } from "./terminology";
 
 type Metric = "forecast" | "actual";
@@ -78,5 +79,6 @@ export default function App() {
     <section className="panel import"><h2>Load CSV data</h2><p>Columns: id,name,budget,forecast,actual. Values in € millions. Simple comma-separated CSV without quoted commas.</p><input type="file" accept=".csv,text/csv" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{const rows=parseCSV(await file.text());setProjects(rows);setSelected(rows[0]?.id??null);setError("");}catch(err){setError(err instanceof Error?err.message:"Unable to parse file");}}}/>{error&&<p className="bad">{error}</p>}<button className="secondary" onClick={()=>{setProjects(sampleProjects);setSelected("P-102");setError("");}}>Restore sample data</button></section>
     <ExcelImport terms={terms} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/>
     <CompanyGlossary terms={terms} onChange={saveTerms}/>
+    <ManualAIExchange terms={terms} onApply={update}/>
     <footer>ControlAI MVP · Free & open-source visualization stack · All default values are demo data</footer></main></div>;
 }
