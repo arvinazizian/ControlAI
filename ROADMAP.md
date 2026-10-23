@@ -181,7 +181,8 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [x] Connect uploaded multi-file CSV/XLSX datasets to the decision advisor through in-memory app state; select a source table and generate deterministic questions (code committed, build/UI unverified)
 - [ ] Connect decisions to SQL/API/enterprise sources and richer data profiling
 - [x] Record explicit per-dataset question answers in browser session state without modifying data (code committed; not persisted)
-- [ ] Preview transformations and before/after totals, require approval, record reversible steps
+- [x] Initial non-destructive preview for trim, exclude-empty and first-key deduplication; before/after counts and sample (code committed, build/UI unverified)
+- [ ] Apply explicitly approved transformations to derived datasets, with rollback and audit trail
 - [ ] Validate formulas against semantic model, types, granularity, units and permissions; safe calculation runtime
 - [ ] Natural-language and code-assisted SQL/DAX/transform generation with sandbox and explicit approval
 - [ ] Recommend visual types and chart measures using validated model and reporting intent
@@ -210,3 +211,13 @@ Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md
 - [ ] Evaluate model and cleaning suggestions against real-world project-control cases; human review before production use
 
 **Status convention:** Checked entries marked "code committed" are not evidence of successful build, deployment or end-to-end functionality. All unimplemented, blocked or unverified items remain explicitly recorded.
+
+## Verification and release notes — 2026-10-23
+- [x] Added immutable cleaningPreview.ts utility; trim whitespace, filter missing rows, deduplicate by selected key; original imported dataset remains untouched
+- [x] Added cleaning preview controls to DataDecisionStudio for selected uploaded datasets
+- [x] Queried GitHub commit status for cleaning-preview commit: Vercel check **pending** at time of inspection; this is NOT a passing build
+- [x] Queried Vercel project list for team `team_j4nSbPBJ4tY4FN658DpqIZoP` and search `controlai`: no matching projects returned; project/scope may differ
+- [ ] Confirm the actual Vercel project and final READY status, inspect logs, run a live browser smoke test
+- [ ] Run TypeScript/Vite build and automated tests (local container cannot resolve github.com; no successful build evidence)
+- [ ] Confirm how missing rows, duplicate keys, date parsing, currency units and grain should be handled for each dataset before any irreversible change
+- [ ] Wire approved cleaning steps to derived tables, model builder, chart measures and version history
