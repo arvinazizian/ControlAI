@@ -1,3 +1,4 @@
+import ReportDiscovery from "./ReportDiscovery";
 import type {Dataset} from "./dataAdvisor";
 import DataDecisionStudio from "./DataDecisionStudio";
 import MultiSourceWorkspace from "./MultiSourceWorkspace";
@@ -89,6 +90,7 @@ export default function App() {
     <section className="panel import"><h2>{t("loadCsv")}</h2><p>Columns: id,name,budget,forecast,actual. Values in € millions. Simple comma-separated CSV without quoted commas.</p><input type="file" accept=".csv,text/csv" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{const rows=parseCSV(await file.text());setProjects(rows);setSelected(rows[0]?.id??null);setError("");}catch(err){setError(err instanceof Error?err.message:"Unable to parse file");}}}/>{error&&<p className="bad">{error}</p>}<button className="secondary" onClick={()=>{setProjects(sampleProjects);setSelected("P-102");setError("");}}>{t("restore")}</button></section>
     <MultiSourceWorkspace language={language} onDatasets={next=>setImportedDatasets(old=>[...old,...next])}/>
     <DataDecisionStudio language={language} datasets={importedDatasets}/>
+    <ReportDiscovery language={language}/>
     <ModelWizard language={language}/>
     <ExcelImport terms={terms} language={language} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/>
     <CompanyGlossary terms={terms} language={language} onChange={saveTerms}/>
