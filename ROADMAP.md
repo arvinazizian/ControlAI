@@ -85,6 +85,20 @@ Last reviewed: 2026-10-23
 - [ ] Billing, subscriptions, and usage quotas
 - [ ] Confirm commercial hosting terms before public paid launch
 
+## 5A. Identity, organizations and sharing
+- [ ] Individual accounts, verified emails and secure sessions
+- [ ] Organization membership and switching between organizations
+- [ ] Organization roles and workspace permissions
+- [ ] Invite by organizational email, accept/revoke/expire invitations
+- [ ] Share reports and dashboards with members or groups
+- [ ] Share permission levels: view, edit, manage; expiry and revoke
+- [ ] "Shared with me" page and permission management UI
+- [ ] Dataset-level permissions enforced alongside visual sharing
+- [ ] Organization isolation, RLS and cross-tenant security tests
+- [ ] Audit log of access changes and sharing
+- [ ] Optional enterprise SSO and user provisioning
+- [ ] Organization-specific AI connector access policies
+
 ## 6. Product quality & release
 - [ ] Farsi/Dutch/English localization and RTL support
 - [ ] Onboarding, sample templates, help pages
@@ -92,6 +106,8 @@ Last reviewed: 2026-10-23
 - [ ] Error handling and loading/empty states
 - [ ] User feedback and usability testing
 - [ ] Public beta release criteria and release notes
+
+Architecture: [Identity, Organizations & Sharing](./docs/identity-and-sharing.md) (design only, not implemented).
 
 ## Next recommended sprint
 1. Verify deployed URL and mobile/desktop chart interactions.
