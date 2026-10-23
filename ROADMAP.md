@@ -115,7 +115,7 @@ Last reviewed: 2026-10-23
 - [ ] Organization-specific AI connector access policies
 
 ## 6. Product quality & release
-- [x] Initial English/Dutch/Persian dictionaries, main-dashboard switcher, language persistence and RTL styles (code implemented; deployment verification pending)
+- [x] Initial English/Dutch/Persian/Arabic/Turkish dictionaries, main-dashboard switcher, language persistence and Persian/Arabic RTL styles (code implemented; deployment verification pending)
 - [ ] Translate all secondary panels, validation messages, charts, exports and accessibility labels
 - [ ] Add scalable language packs and translation completeness checks for additional languages
 - [ ] Separate interface locale, source-data language and AI prompt/response language
