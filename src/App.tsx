@@ -84,7 +84,7 @@ export default function App() {
   const palette = palettes[settings.palette];
   if(typeof document!=="undefined"){document.documentElement.lang=language;document.documentElement.dir=language==="fa"||language==="ar"?"rtl":"ltr";}
   const data = useMemo(() => [...projects].sort((a,b) => settings.sort === "variance" ? (b.forecast-b.budget)-(a.forecast-a.budget) : a.name.localeCompare(b.name)),[projects,settings.sort]);
-  const active = projects.find(p => p.id === selected);
+  const active = projects.find(p => p.id === selected) ?? projects[0];
   const update = (changes: Partial<typeof initial>) => setSettings(prev => ({...prev,...changes}));
   const option = {
     backgroundColor:"transparent", color:palette,
