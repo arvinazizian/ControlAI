@@ -1,3 +1,4 @@
+import SmartReport from "./SmartReport";
 import RealReportBuilder from "./RealReportBuilder";
 import ReportReadiness from "./ReportReadiness";
 import ChatOnboarding, {type ConversationAnswers} from "./ChatOnboarding";
@@ -24,7 +25,7 @@ import ManualAIExchange from "./ManualAIExchange";
 import { preferredLanguage, translate, type Language, type TranslationKey } from "./i18n";
 import { loadTerms, type Term } from "./terminology";
 
-type WorkspaceTab = "report" | "sources" | "data" | "relationships" | "settings";
+type WorkspaceTab = "report" | "preview" | "sources" | "data" | "relationships" | "settings";
 type AssistantMode = "questions" | "ai" | "discovery";
 type Metric = "forecast" | "actual";
 type Direction = "horizontal" | "vertical";
@@ -50,15 +51,15 @@ function restoreWorkspace():{open:boolean;tab:WorkspaceTab;conversation:Conversa
  try {
   const saved=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");
   if(!saved||typeof saved!=="object")throw Error("No saved session");
-  const tabs:WorkspaceTab[]=["report","sources","data","relationships","settings"];
-  return {open:saved.open===true,tab:tabs.includes(saved.tab)?saved.tab:"sources",conversation:saved.conversation&&typeof saved.conversation==="object"?saved.conversation:{},datasets:Array.isArray(saved.datasets)?saved.datasets:[]};
- }catch{return {open:false,tab:"sources",conversation:{},datasets:[]};}
+  const tabs:WorkspaceTab[]=["report","preview","sources","data","relationships","settings"];
+  return {open:saved.open===true,tab:tabs.includes(saved.tab)?saved.tab:"report",conversation:saved.conversation&&typeof saved.conversation==="object"?saved.conversation:{},datasets:Array.isArray(saved.datasets)?saved.datasets:[]};
+ }catch{return {open:true,tab:"report",conversation:{},datasets:[]};}
 }
 export default function App() {
   const [restoredSession]=useState(restoreWorkspace);
   const [settings,setSettings] = useState(initial);
   const [tab,setTab] = useState<WorkspaceTab>(restoredSession.tab);
-  const [showWorkspace,setShowWorkspace] = useState(restoredSession.open);
+  const [showWorkspace,setShowWorkspace] = useState(true);
   const [conversation,setConversation] = useState<ConversationAnswers>(restoredSession.conversation);
   const [assistantOpen,setAssistantOpen] = useState(true);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("ai");
@@ -120,9 +121,9 @@ export default function App() {
     <aside className="sidebar"><div className="brand"><BarChart3 size={25}/><span>Control<span className="accent">AI</span></span></div><div className="nav active">▦ &nbsp; {t("visualStudio")}</div><div className="nav muted">◫ &nbsp; {t("dashboards")} <small>{t("soon")}</small></div><div className="nav muted">◇ &nbsp; {t("dataSources")} <small>{t("soon")}</small></div><div className="sidebottom">MVP v0.1<br/>Local sample data · No cloud connection</div></aside>
     <main><button className="secondary" onClick={()=>setShowWorkspace(false)}>{language==="fa"?"← بازگشت به گفت‌وگو":"← Back to conversation"}</button><div className="language-picker"><label htmlFor="language-select">{t("language")}</label><select id="language-select" value={language} onChange={e=>changeLanguage(e.target.value as Language)}><option value="en">English</option><option value="nl">Nederlands</option><option value="fa">فارسی</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div><header><div><div className="eyebrow">{t("workspace")}</div><h1>{t("comparison")} <span className="chip">Visual B</span></h1><p>{t("intro")}</p></div><button className="primary" onClick={download}><Download size={16}/> {t("export")}</button></header>
     <nav className="workspace-tabs" aria-label={language==="fa"?"بخش‌های محیط کار":"Workspace sections"}>
-      {([{id:"sources",fa:"۱. ورود داده",en:"1. Sources"},{id:"data",fa:"۲. بررسی داده",en:"2. Data"},{id:"relationships",fa:"۳. ارتباط‌ها",en:"3. Relationships"},{id:"report",fa:"۴. ساخت گزارش",en:"4. Report"},{id:"settings",fa:"تنظیمات",en:"Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
+      {([{id:"sources",fa:"۱. ورود داده",en:"1. Sources"},{id:"data",fa:"۲. بررسی داده",en:"2. Data"},{id:"relationships",fa:"۳. ارتباط‌ها",en:"3. Relationships"},{id:"report",fa:"تحلیل و طراحی",en:"Analyze & design"},{id:"preview",fa:"فقط گزارش",en:"Report only"},{id:"settings",fa:"تنظیمات",en:"Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
     </nav>
-    <section className="assistant-dock" aria-label="ControlAI assistant">
+    {tab!=="preview"&&<section className="assistant-dock" aria-label="ControlAI assistant">
       <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
       {assistantOpen&&<div className="assistant-dock-body">
         {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
@@ -133,18 +134,20 @@ export default function App() {
           <button className="secondary" onClick={()=>setExperience(null)}>{language==="fa"?"تغییر سطح راهنمایی":"Change guidance level"}</button>
         </>}
       </div>}
-    </section>
-    {conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
+    </section>}
+    {tab!=="preview"&&conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
       <strong>{language==="fa"?"درخواست گزارش شما":"Your report request"}</strong>
       <p>{conversation.goal.join(" · ")} · {conversation.detail?.join(", ")||""} · {conversation.frequency?.join(", ")||""}</p>
       <small>{language==="fa"?"این انتخاب‌ها ذخیره شده‌اند و برای تنظیم گزارش استفاده خواهند شد؛ گزارش خودکار هنوز به اعتبارسنجی داده نیاز دارد.":"Preferences captured. Actual report generation requires source-data validation."}</small>
     </section>}
     <div className="workspace-stage">
-      <div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>
-      <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>{setApprovedRelationships({});setImportedDatasets(old=>[...old,...next]);}}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
+      {tab!=="preview"&&<div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>}
+      {tab==="preview"&&<SmartReport datasets={reportDatasets} language={language} reportOnly/>}
+    {tab==="report"&&<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,340px),1fr))",gap:16,alignItems:"start"}}><div><h2>{language==="fa"?"جزئیات و تنظیمات":"Details and settings"}</h2><p>{language==="fa"?"گزارش اولیه خودکار ساخته شده؛ برای تغییر، تنظیمات یا دستیار را به‌کار ببر.":"An initial report is generated automatically."}</p></div><SmartReport datasets={reportDatasets} language={language}/></div>}
+    <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>{setApprovedRelationships({});setImportedDatasets(old=>[...old,...next]);}}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
       <div style={{display:tab==="data"?"block":"none"}}><DataWorkbench language={language} datasets={importedDatasets} onChange={next=>{setApprovedRelationships({});setImportedDatasets(next);}}/><DataDecisionStudio language={language} datasets={importedDatasets}/></div>
       <div style={{display:tab==="relationships"?"block":"none"}}><BridgeAssistant language={language} datasets={importedDatasets} experience={experience}/><RelationshipReview language={language} datasets={importedDatasets} approved={approvedRelationships} onApprovedChange={setApprovedRelationships}/></div>
-      {tab==="report"&&<>{conversation.source?.includes("none")&&importedDatasets.length===0&&<section className="panel import"><h2>{language==="fa"?"شروع بدون فایل":"Start without files"}</h2><p>{language==="fa"?"گفتی فعلاً فایل یا داده نداری. نیازی به آپلود نیست؛ ابتدا فیلدهای موردنیاز، ساخت قالب یا برنامه جمع‌آوری داده را مشخص می‌کنیم. ساخت گزارش عددی واقعی تا ورود داده ممکن نیست.":"You said you have no data. No upload is required now. First define the fields, template or data collection plan. A real numeric report needs data."}</p><p>{language==="fa"?"انتخاب تو: ":"Your choice: "}{conversation.data_plan?.join("، ")||"—"}</p><p>{language==="fa"?"قواعدی که توضیح دادی: ":"Your requested rules: "}{conversation.refinement?.join("، ")||"—"}</p></section>}<RealReportBuilder language={language} datasets={reportDatasets} answers={conversation}/>
+      {false&&tab==="report"&&<>{conversation.source?.includes("none")&&importedDatasets.length===0&&<section className="panel import"><h2>{language==="fa"?"شروع بدون فایل":"Start without files"}</h2><p>{language==="fa"?"گفتی فعلاً فایل یا داده نداری. نیازی به آپلود نیست؛ ابتدا فیلدهای موردنیاز، ساخت قالب یا برنامه جمع‌آوری داده را مشخص می‌کنیم. ساخت گزارش عددی واقعی تا ورود داده ممکن نیست.":"You said you have no data. No upload is required now. First define the fields, template or data collection plan. A real numeric report needs data."}</p><p>{language==="fa"?"انتخاب تو: ":"Your choice: "}{conversation.data_plan?.join("، ")||"—"}</p><p>{language==="fa"?"قواعدی که توضیح دادی: ":"Your requested rules: "}{conversation.refinement?.join("، ")||"—"}</p></section>}<RealReportBuilder language={language} datasets={reportDatasets} answers={conversation}/>
     {importedDatasets.length===0&&<><p className="notice">{language==="fa"?"نمودارهای زیر فقط داده نمایشی هستند؛ برای گزارش واقعی فایل وارد کن.":"Charts below are demo data only. Import files to build a real report."}</p>
 <section className="stats"><div className="stat"><span>{t("budget")}</span><strong>€{projects.reduce((a,p)=>a+p.budget,0).toFixed(1)}M</strong></div><div className="stat"><span>{t("forecast")}</span><strong>€{projects.reduce((a,p)=>a+p.forecast,0).toFixed(1)}M</strong></div><div className="stat"><span>{t("variance")}</span><strong className={projects.reduce((a,p)=>a+p.forecast-p.budget,0)>0?"bad":"good"}>€{projects.reduce((a,p)=>a+p.forecast-p.budget,0).toFixed(1)}M</strong></div></section>
     <div className="workspace"><section className="panel chart"><div className="panelhead"><div><h2>{t("financial")}</h2><p>{t("drill")}</p></div><span className="chip">{t("million")}</span></div><ReactECharts option={option} style={{height:380,width:"100%"}} onEvents={{click:(event:{dataIndex:number})=>setSelected(data[event.dataIndex]?.id??null)}} notMerge={true}/>{active&&<div className="drill"><div className="drillhead"><strong>{active.name} — {t("detail")}</strong><span>{active.id}</span></div><div className="drillstats"><div>Budget<strong>€{active.budget.toFixed(2)}M</strong></div><div>Forecast<strong>€{active.forecast.toFixed(2)}M</strong></div><div>Variance<strong className={active.forecast>active.budget?"bad":"good"}>€{(active.forecast-active.budget).toFixed(2)}M</strong></div></div></div>}</section>
