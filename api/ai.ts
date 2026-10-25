@@ -3,7 +3,7 @@ export default async function handler(req:any,res:any){
  if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
  const groqKey=process.env.GROQ_API_KEY;
  const key=groqKey||process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
- const model=process.env.CONTROLAI_MODEL||(groqKey?"llama-3.3-70b-versatile":"openai/gpt-4o-mini");
+ const model=process.env.CONTROLAI_MODEL||(groqKey?"openai/gpt-oss-20b":"openai/gpt-4o-mini");
  const provider=groqKey?"Groq":"AI Gateway";
  if(!key)return res.status(503).json({error:"AI authentication is not configured. Add GROQ_API_KEY to the Vercel project."});
  const body=req.body;
