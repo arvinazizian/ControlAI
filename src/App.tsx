@@ -155,7 +155,7 @@ export default function App() {
 
       </>}
       {tab==="settings"&&<><ModelWizard language={language}/><ExcelImport terms={terms} language={language} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/><CompanyGlossary terms={terms} language={language} onChange={saveTerms}/><ManualAIExchange terms={terms} language={language} onApply={update}/></>}
-      <div className="stage-navigation"><button className="secondary" disabled={tab==="sources"} onClick={()=>setTab(tab==="data"?"sources":tab==="relationships"?"data":tab==="report"?"relationships":"report")}>{language==="fa"?"← مرحله قبل":"← Previous"}</button><button className="primary" disabled={tab==="report"} onClick={()=>setTab(tab==="sources"?"data":tab==="data"?"relationships":tab==="relationships"?"report":"report")}>{language==="fa"?"مرحله بعد →":"Next step →"}</button></div>
+      {tab!=="report"&&tab!=="preview"&&<div className="stage-navigation"><button className="secondary" onClick={()=>setTab("report")}>{language==="fa"?"رفتن به استودیو گزارش":"Open report studio"}</button></div>}
     </div>
     <footer>ControlAI MVP · Free & open-source visualization stack · All default values are demo data</footer></main></div>;
 }
