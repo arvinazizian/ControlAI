@@ -1,0 +1,12 @@
+import type {Dataset} from "./dataAdvisor";
+import type {Language} from "./i18n";
+import type {ApprovedRelationship} from "./relationshipAdvisor";
+export default function ModelOverview({datasets,approved,language,onNavigate}:{datasets:Dataset[];approved:Record<string,ApprovedRelationship>;language:Language;onNavigate:(tab:"sources"|"data"|"relationships"|"report")=>void}){
+ const fa=language==="fa",links=Object.values(approved);
+ return <section className="model-overview">
+ <div className="model-overview-head"><div><h2>{fa?"نمای مدل داده":"Data model view"}</h2><p>{fa?"جداول و ارتباط‌های تأییدشده را اینجا ببین؛ برای تغییر ارتباط به نمای مدل برو.":"See tables and approved relationships; edit links in the model tab."}</p></div><button className="secondary" onClick={()=>onNavigate("relationships")}>{fa?"ویرایش ارتباط‌ها":"Edit relationships"}</button></div>
+ <div className="model-summary"><span>{datasets.length} {fa?"جدول":"tables"}</span><span>{links.length} {fa?"رابطه تأییدشده":"approved relationships"}</span><button className="secondary" onClick={()=>onNavigate("report")}>{fa?"نمای گزارش":"Report view"}</button></div>
+ {!datasets.length?<div className="panel"><p>{fa?"هنوز فایلی وارد نشده است. برای ساخت مدل چند فایل Excel وارد کن.":"No imported files yet. Add Excel files to build a model."}</p><button className="primary" onClick={()=>onNavigate("sources")}>{fa?"ورود فایل":"Import files"}</button></div>:<div className="model-table-grid">{datasets.map(d=><article className="model-table-card" key={d.name}><div className="model-table-title">▤ {d.name}</div><small>{d.rows.length} {fa?"ردیف":"rows"} · {d.columns.length} {fa?"ستون":"fields"}</small><ul>{d.columns.slice(0,12).map(c=><li key={c}><span>{c}</span><span className="model-field-type">{d.rows.some(r=>typeof r[c]==="number")?"#":"·"}</span></li>)}</ul>{d.columns.length>12&&<small>+{d.columns.length-12} {fa?"ستون دیگر":"more fields"}</small>}</article>)}</div>}
+ <div className="model-links"><h3>{fa?"ارتباط بین جداول":"Table relationships"}</h3>{links.length?links.map(r=><div className="model-link" key={r.id}><strong>{r.left}</strong><span>{r.leftColumn} ↔ {r.rightColumn}</span><strong>{r.right}</strong><small>{r.cardinality}</small></div>):<p>{fa?"هنوز رابطه‌ای تأیید نشده است. ارتباط‌های پیشنهادی را در تب مدل بررسی کن.":"No approved relationships yet. Review suggestions in the model tab."}</p>}</div>
+ </section>;
+}
