@@ -1,3 +1,4 @@
+import ModelOverview from "./ModelOverview";
 import SmartReport from "./SmartReport";
 import RealReportBuilder from "./RealReportBuilder";
 import ReportReadiness from "./ReportReadiness";
@@ -25,7 +26,7 @@ import ManualAIExchange from "./ManualAIExchange";
 import { preferredLanguage, translate, type Language, type TranslationKey } from "./i18n";
 import { loadTerms, type Term } from "./terminology";
 
-type WorkspaceTab = "report" | "preview" | "sources" | "data" | "relationships" | "settings";
+type WorkspaceTab = "report" | "preview" | "sources" | "data" | "relationships" | "model" | "settings";
 type AssistantMode = "questions" | "ai" | "discovery";
 type Metric = "forecast" | "actual";
 type Direction = "horizontal" | "vertical";
@@ -51,7 +52,7 @@ function restoreWorkspace():{open:boolean;tab:WorkspaceTab;conversation:Conversa
  try {
   const saved=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");
   if(!saved||typeof saved!=="object")throw Error("No saved session");
-  const tabs:WorkspaceTab[]=["report","preview","sources","data","relationships","settings"];
+  const tabs:WorkspaceTab[]=["report","preview","sources","data","relationships","model","settings"];
   return {open:saved.open===true,tab:tabs.includes(saved.tab)?saved.tab:"report",conversation:saved.conversation&&typeof saved.conversation==="object"?saved.conversation:{},datasets:Array.isArray(saved.datasets)?saved.datasets:[]};
  }catch{return {open:true,tab:"report",conversation:{},datasets:[]};}
 }
@@ -121,9 +122,9 @@ export default function App() {
     <aside className="sidebar"><div className="brand"><BarChart3 size={25}/><span>Control<span className="accent">AI</span></span></div><div className="nav active">▦ &nbsp; {t("visualStudio")}</div><div className="nav muted">◫ &nbsp; {t("dashboards")} <small>{t("soon")}</small></div><div className="nav muted">◇ &nbsp; {t("dataSources")} <small>{t("soon")}</small></div><div className="sidebottom">MVP v0.1<br/>Local sample data · No cloud connection</div></aside>
     <main><button className="secondary" onClick={()=>setShowWorkspace(false)}>{language==="fa"?"← بازگشت به گفت‌وگو":"← Back to conversation"}</button><div className="language-picker"><label htmlFor="language-select">{t("language")}</label><select id="language-select" value={language} onChange={e=>changeLanguage(e.target.value as Language)}><option value="en">English</option><option value="nl">Nederlands</option><option value="fa">فارسی</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div><header><div><div className="eyebrow">{t("workspace")}</div><h1>{t("comparison")} <span className="chip">Visual B</span></h1><p>{t("intro")}</p></div><button className="primary" onClick={download}><Download size={16}/> {t("export")}</button></header>
     <nav className="workspace-tabs" aria-label={language==="fa"?"بخش‌های محیط کار":"Workspace sections"}>
-      {([{id:"sources",fa:"۱. ورود داده",en:"1. Sources"},{id:"data",fa:"۲. بررسی داده",en:"2. Data"},{id:"relationships",fa:"۳. ارتباط‌ها",en:"3. Relationships"},{id:"report",fa:"تحلیل و طراحی",en:"Analyze & design"},{id:"preview",fa:"فقط گزارش",en:"Report only"},{id:"settings",fa:"تنظیمات",en:"Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
+      {([{id:"report",fa:"▦ گزارش",en:"▦ Report"},{id:"data",fa:"▤ داده‌ها",en:"▤ Data"},{id:"model",fa:"◇ نمای مدل",en:"◇ Model"},{id:"relationships",fa:"↔ مدیریت روابط",en:"↔ Relationships"},{id:"sources",fa:"+ فایل‌ها",en:"+ Sources"},{id:"preview",fa:"◫ نمایش نهایی",en:"◫ Final view"},{id:"settings",fa:"⚙ تنظیمات",en:"⚙ Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
     </nav>
-    {tab!=="preview"&&<section className="assistant-dock" aria-label="ControlAI assistant">
+    {tab==="report"&&<section className="assistant-dock" aria-label="ControlAI assistant">
       <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
       {assistantOpen&&<div className="assistant-dock-body">
         {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
@@ -135,13 +136,14 @@ export default function App() {
         </>}
       </div>}
     </section>}
-    {tab!=="preview"&&conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
+    {tab==="report"&&conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
       <strong>{language==="fa"?"درخواست گزارش شما":"Your report request"}</strong>
       <p>{conversation.goal.join(" · ")} · {conversation.detail?.join(", ")||""} · {conversation.frequency?.join(", ")||""}</p>
       <small>{language==="fa"?"این انتخاب‌ها ذخیره شده‌اند و برای تنظیم گزارش استفاده خواهند شد؛ گزارش خودکار هنوز به اعتبارسنجی داده نیاز دارد.":"Preferences captured. Actual report generation requires source-data validation."}</small>
     </section>}
     <div className="workspace-stage">
-      {tab!=="preview"&&<div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>}
+      {tab!=="preview"&&tab!=="report"&&tab!=="model"&&<div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>}
+      {tab==="model"&&<ModelOverview datasets={importedDatasets} approved={approvedRelationships} language={language} onNavigate={setTab}/>}
       {(tab==="preview"||tab==="report")&&<SmartReport datasets={reportDatasets} language={language} reportOnly={tab==="preview"}/>}
     <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>{setApprovedRelationships({});setImportedDatasets(old=>[...old,...next]);}}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
       <div style={{display:tab==="data"?"block":"none"}}><DataWorkbench language={language} datasets={importedDatasets} onChange={next=>{setApprovedRelationships({});setImportedDatasets(next);}}/><DataDecisionStudio language={language} datasets={importedDatasets}/></div>
