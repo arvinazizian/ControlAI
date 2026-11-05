@@ -124,25 +124,13 @@ export default function App() {
     <nav className="workspace-tabs" aria-label={language==="fa"?"بخش‌های محیط کار":"Workspace sections"}>
       {([{id:"report",fa:"▦ گزارش",en:"▦ Report"},{id:"data",fa:"▤ داده‌ها",en:"▤ Data"},{id:"model",fa:"◇ نمای مدل",en:"◇ Model"},{id:"relationships",fa:"↔ مدیریت روابط",en:"↔ Relationships"},{id:"sources",fa:"+ فایل‌ها",en:"+ Sources"},{id:"preview",fa:"◫ نمایش نهایی",en:"◫ Final view"},{id:"settings",fa:"⚙ تنظیمات",en:"⚙ Settings"}] as const).map(item=><button key={item.id} className={tab===item.id?"workspace-tab active":"workspace-tab"} onClick={()=>setTab(item.id)} aria-current={tab===item.id?"step":undefined}>{language==="fa"?item.fa:item.en}</button>)}
     </nav>
-    {tab==="report"&&<section className="assistant-dock" aria-label="ControlAI assistant">
-      <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
-      {assistantOpen&&<div className="assistant-dock-body">
-        {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
-          <div className="assistant-mode-tabs"><button className={assistantMode==="questions"?"active":""} onClick={()=>setAssistantMode("questions")}>{language==="fa"?"سؤال بعدی":"Next question"}</button><button className={assistantMode==="ai"?"active":""} onClick={()=>setAssistantMode("ai")}>AI</button><button className={assistantMode==="discovery"?"active":""} onClick={()=>setAssistantMode("discovery")}>{language==="fa"?"هدف گزارش":"Report goals"}</button></div>
-          {assistantMode==="questions"&&<AdaptiveInterview language={language} datasets={importedDatasets} experience={experience}/>}
-          {assistantMode==="ai"&&<AIGuidance language={language} datasets={importedDatasets} experience={experience} reportIntent={conversation}/>}
-          {assistantMode==="discovery"&&<ReportDiscovery language={language} datasets={importedDatasets}/>}
-          <button className="secondary" onClick={()=>setExperience(null)}>{language==="fa"?"تغییر سطح راهنمایی":"Change guidance level"}</button>
-        </>}
-      </div>}
-    </section>}
     {tab==="report"&&conversation.goal?.length>0&&<section className="conversation-brief" aria-label="Report request">
       <strong>{language==="fa"?"درخواست گزارش شما":"Your report request"}</strong>
       <p>{conversation.goal.join(" · ")} · {conversation.detail?.join(", ")||""} · {conversation.frequency?.join(", ")||""}</p>
       <small>{language==="fa"?"این انتخاب‌ها ذخیره شده‌اند و برای تنظیم گزارش استفاده خواهند شد؛ گزارش خودکار هنوز به اعتبارسنجی داده نیاز دارد.":"Preferences captured. Actual report generation requires source-data validation."}</small>
     </section>}
     <div className="workspace-stage">
-      {tab!=="preview"&&tab!=="report"&&tab!=="model"&&<div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند همیشه از بالای صفحه در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>}
+      {tab!=="preview"&&tab!=="report"&&tab!=="model"&&<div className="stage-heading"><h2>{tab==="sources"?(language==="fa"?"ورود و آماده‌سازی داده":"Import and prepare data"):tab==="data"?(language==="fa"?"بررسی و ویرایش داده":"Explore and edit data"):tab==="relationships"?(language==="fa"?"مدل و ارتباط جدول‌ها":"Model and relationships"):tab==="report"?(language==="fa"?"طراحی و نمایش گزارش":"Build and view report"):(language==="fa"?"تنظیمات و ابزارهای پیشرفته":"Settings and advanced tools")}</h2><p>{language==="fa"?"فقط ابزارهای مربوط به این مرحله نمایش داده می‌شوند. راهنمای هوشمند پایین محیط کار در دسترس است.":"Only tools for this step are shown. The assistant stays available at the top."}</p></div>}
       {tab==="model"&&<ModelOverview datasets={importedDatasets} approved={approvedRelationships} language={language} onNavigate={setTab}/>}
       {(tab==="preview"||tab==="report")&&<SmartReport datasets={reportDatasets} language={language} reportOnly={tab==="preview"}/>}
     <div style={{display:tab==="sources"?"block":"none"}}><MultiSourceWorkspace language={language} onDatasets={next=>{setApprovedRelationships({});setImportedDatasets(old=>[...old,...next]);}}/><ReportReadiness language={language} datasets={importedDatasets} answers={conversation}/></div>
@@ -159,5 +147,19 @@ export default function App() {
       {tab==="settings"&&<><ModelWizard language={language}/><ExcelImport terms={terms} language={language} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/><CompanyGlossary terms={terms} language={language} onChange={saveTerms}/><ManualAIExchange terms={terms} language={language} onApply={update}/></>}
       {tab!=="report"&&tab!=="preview"&&<div className="stage-navigation"><button className="secondary" onClick={()=>setTab("report")}>{language==="fa"?"رفتن به استودیو گزارش":"Open report studio"}</button></div>}
     </div>
+    {tab==="report"&&<section className="panel" style={{marginTop:16,padding:16}} aria-label="Report command chat"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><strong>✦ {language==="fa"?"دستیار طراحی گزارش":"Report design assistant"}</strong><span style={{fontSize:12,opacity:.7}}>{language==="fa"?"تغییرات سریع با فرمان متنی؛ اجرای خودکار AI هنوز فعال نیست":"Quick text commands; automatic AI edits are not yet enabled"}</span></div><div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><textarea style={{flex:"1 1 300px",minHeight:64}} value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder={language==="fa"?"مثلاً: نمودار عمودی، مقدار واقعی، رنگ سبز":"e.g. vertical chart, actual values, green palette"}/><button className="primary" disabled={!prompt.trim()} onClick={applyPrompt}>{language==="fa"?"اعمال تغییر":"Apply change"}</button><button className="secondary" onClick={()=>{setAssistantOpen(true);setAssistantMode("ai");document.getElementById("controlai-guidance")?.scrollIntoView({behavior:"smooth"});}}>{language==="fa"?"سؤال از AI":"Ask AI"}</button></div>{notice&&<p role="status" style={{marginTop:8}}>{notice}</p>}</section>}
+    <div id="controlai-guidance">{tab==="report"&&<section className="assistant-dock" aria-label="ControlAI assistant">
+      <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
+      {assistantOpen&&<div className="assistant-dock-body">
+        {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
+          <div className="assistant-mode-tabs"><button className={assistantMode==="questions"?"active":""} onClick={()=>setAssistantMode("questions")}>{language==="fa"?"سؤال بعدی":"Next question"}</button><button className={assistantMode==="ai"?"active":""} onClick={()=>setAssistantMode("ai")}>AI</button><button className={assistantMode==="discovery"?"active":""} onClick={()=>setAssistantMode("discovery")}>{language==="fa"?"هدف گزارش":"Report goals"}</button></div>
+          {assistantMode==="questions"&&<AdaptiveInterview language={language} datasets={importedDatasets} experience={experience}/>}
+          {assistantMode==="ai"&&<AIGuidance language={language} datasets={importedDatasets} experience={experience} reportIntent={conversation}/>}
+          {assistantMode==="discovery"&&<ReportDiscovery language={language} datasets={importedDatasets}/>}
+          <button className="secondary" onClick={()=>setExperience(null)}>{language==="fa"?"تغییر سطح راهنمایی":"Change guidance level"}</button>
+        </>}
+      </div>}
+    </section>}
+</div>
     <footer>ControlAI MVP · Free & open-source visualization stack · All default values are demo data</footer></main></div>;
 }
