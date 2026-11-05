@@ -3,8 +3,10 @@ export default async function handler(req:any,res:any){
  if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
  const groqKey=process.env.GROQ_API_KEY;
  const key=groqKey||process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
- const model=process.env.CONTROLAI_MODEL||(groqKey?"llama-3.1-8b-instant":"openai/gpt-4o-mini");
+ let model=process.env.CONTROLAI_MODEL||(groqKey?"llama-3.1-8b-instant":"openai/gpt-4o-mini");
  const provider=groqKey?"Groq":"AI Gateway";
+ if(groqKey){try{const catalog=await fetch("https://api.groq.com/openai/v1/models",{headers:{Authorization:"Bearer "+groqKey},signal:AbortSignal.timeout(6000)});if(catalog.ok){const json=await catalog.json();const ids=(Array.isArray(json.data)?json.data:[]).map((m:any)=>m.id).filter((id:any):id is string=>typeof id==="string");const preferred=["llama-3.1-8b-instant","llama-3.3-70b-versatile","openai/gpt-oss-20b"];if(!ids.includes(model)){const replacement=preferred.find(id=>ids.includes(id))||ids.find(id=>/llama|gpt-oss|qwen/i.test(id));if(replacement)model=replacement;else return res.status(503).json({error:"No compatible Groq text model is available for this API key."});}}else return res.status(502).json({error:"Could not retrieve available Groq models",status:catalog.status});}catch{return res.status(502).json({error:"Could not check Groq model availability. Please retry."});}}
+
  if(!key)return res.status(503).json({error:"AI authentication is not configured. Add GROQ_API_KEY to the Vercel project."});
  const body=req.body;
  if(!body||typeof body!=="object"||!["discovery","data_quality","relationships","model","report","visual_command","chat"].includes(body.stage))return res.status(400).json({error:"Invalid stage"});
