@@ -10,7 +10,16 @@ export default async function handler(req:any,res:any){
  if(!key)return res.status(503).json({error:"AI authentication is not configured. Add GROQ_API_KEY to the Vercel project."});
  const body=req.body;
  if(!body||typeof body!=="object"||!["discovery","data_quality","relationships","model","report","visual_command","chat"].includes(body.stage))return res.status(400).json({error:"Invalid stage"});
- if(body.stage==="chat"){const command=String(body.metadata?.command||"").slice(0,500);const wantsText=/(text\s*box|textbox|text box|تکست\s*باکس|متن|نوشته)/i.test(command)&&/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|baram)/i.test(command);if(wantsText){const match=command.match(/(?:بنویس|benevis|write|saying|with text)\s*[:：]?\s*["“']?(.+?)["”']?\s*$/i);return res.status(200).json({reply:"Text box ready to add to the canvas.",action:"add_text",text:(match?.[1]||"Welcome").slice(0,150)});}}
+ if(body.stage==="chat"){
+  const command=String(body.metadata?.command||"").slice(0,500);
+  const wantsText=/(text[\\s-]*box|textbox|تکست[\\s-]*باکس|کادر[\\s‌]*متن)/i.test(command)&&/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|baram|bezar|bzar|gozar)/i.test(command);
+  if(wantsText){
+   const match=command.match(/(?:بنویس|benevis|benvis|write|saying|with text)[\\s:：]*["“']?(.+?)["”']?(?:\\s+(?:توش|داخلش|toosh|tosh|samte?|rast|right|left|chap|چپ|راست|سمت))?\\s*$/i);
+   const content=(match?.[1]||"Welcome").replace(/\\s+(?:tosh|toosh|samte?\\s*rast|سمت راست|توش|داخلش).*$/i,"").trim().slice(0,150)||"Welcome";
+   const position=/(right|rast|راست)/i.test(command)?"right":/(left|chap|چپ)/i.test(command)?"left":"auto";
+   return res.status(200).json({reply:"Text box created on the report canvas.",action:"add_text",text:content,position});
+  }
+ }
  const serialized=JSON.stringify(body);
  if(serialized.length>18000)return res.status(413).json({error:"Request too large; send metadata only"});
  const profile=body.profile&&typeof body.profile==="object"?body.profile:{};
