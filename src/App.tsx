@@ -106,8 +106,9 @@ export default function App() {
     try{
       const response=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({stage:"chat",profile:{language},metadata:{command:input,datasets:reportDatasets.map(d=>({name:d.name,columns:d.columns,rowCount:d.rows.length}))},previous:history.slice(-10)})});
       const result=await response.json();if(!response.ok)throw Error(result.detail||result.error||"AI unavailable");
+      if(result.action==="add_text"){setVisualCommand("add_text:"+String(result.text||"Welcome"));setVisualCommandVersion(v=>v+1);}
       if(result.action==="change_visual"&&result.kind!=="none"){setVisualCommand(result.kind);setVisualCommandVersion(v=>v+1);}
-      setChatMessages(prev=>[...prev,{role:"assistant",text:String(result.reply||"")}]);
+      setChatMessages(prev=>[...prev,{role:"assistant",text:result.action==="add_text"?"Text box added: "+String(result.text||"Welcome"):String(result.reply||"")}]);
     }catch(e){setChatMessages(prev=>[...prev,{role:"assistant",text:(language==="fa"?"خطای اتصال: ":"Connection error: ")+(e instanceof Error?e.message:String(e))}]);}
     finally{setCommandBusy(false);}
   }
