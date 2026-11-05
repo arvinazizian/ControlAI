@@ -1,11 +1,11 @@
 import type {ReactNode} from "react";
 import {BarChart3,UploadCloud,Image as ImageIcon,Sparkles,FileSpreadsheet,FolderOpen,MessageSquare,Settings2,Layers,Network,LayoutTemplate,ArrowRight,Send} from "lucide-react";
 import "./StudioHome.css";
-type Props={onOpen:(tab:"report"|"sources"|"data"|"model"|"relationships"|"settings")=>void;onUpload:()=>void;onPrompt:(text:string)=>void;onImage:()=>void;language:string};
+type Props={onOpen:(tab:"report"|"sources"|"data"|"model"|"relationships"|"settings")=>void;onUpload:()=>void;onPrompt:(text:string)=>void;onImage:()=>void;onDemo:()=>void;language:string};
 const templates=[{name:"خلاصه مدیریتی",kind:"summary"},{name:"مقایسه‌ای",kind:"bars"},{name:"تحلیل روند",kind:"trend"},{name:"هزینه و بودجه",kind:"budget"},{name:"عملکرد و KPI",kind:"kpi"},{name:"پرتفوی پروژه‌ها",kind:"portfolio"}];
 function Preview({kind}:{kind:string}){return <div className={"studio-preview studio-preview-"+kind} aria-hidden="true">{kind==="kpi"?<><b>78%</b><i/><i/><i/></>:kind==="trend"?<svg viewBox="0 0 120 50"><polyline points="0,42 16,33 28,39 42,20 55,27 72,12 86,19 103,7 120,12" fill="none" stroke="#13d8e6" strokeWidth="3"/></svg>:<>{[37,64,46,79,56].map((h,i)=><span key={i} style={{height:h+"%",background:i%2?"#796bdb":"#12c4dc"}}/>)}</>}</div>}
 function Tile({children,onClick,className=""}:{children:ReactNode;onClick:()=>void;className?:string}){return <button type="button" onClick={onClick} className={"studio-tile "+className}>{children}</button>}
-export default function StudioHome({onOpen,onUpload,onPrompt,onImage}:Props){
+export default function StudioHome({onOpen,onUpload,onPrompt,onImage,onDemo}:Props){
  return <div className="studio-home" dir="rtl">
   <div className="studio-top"><div className="studio-logo" dir="ltr"><span>✦</span><div><b>ControlAI</b><small>AI Data Analyst &amp; Report Builder</small></div></div><div className="studio-steps">{["دریافت داده‌ها","پاک‌سازی داده","مدل و ارتباطات","طراحی گزارش","اشتراک و خروجی"].map((x,i)=><div key={x} className={i===0?"selected":""}><em>{i+1}</em>{x}</div>)}</div><div className="studio-avatar">AI</div></div>
   <div className="studio-shell">
@@ -17,6 +17,7 @@ export default function StudioHome({onOpen,onUpload,onPrompt,onImage}:Props){
      <Tile onClick={()=>onPrompt("برای داده‌های من یک گزارش مدیریتی پیشنهاد بده")}><Sparkles size={32}/><b>ایده با AI</b><small>هدف گزارش را بنویسید تا طراحی پیشنهاد شود</small></Tile>
      <Tile onClick={onImage}><ImageIcon size={32}/><b>تحلیل از تصویر</b><small>تصویر نمودار یا گزارش را برای تحلیل انتخاب کنید</small></Tile>
     </div>
+    <button type="button" className="studio-demo-button" onClick={onDemo}>✨ شروع فوری با ۴ جدول آزمایشی — بدون بارگذاری فایل</button>
     <button className="studio-drop" onClick={onUpload}><UploadCloud size={34}/><b>فایل‌ها را اینجا بارگذاری کنید</b><small>برای انتخاب فایل‌ها کلیک کنید</small><span>انتخاب فایل‌ها</span><small>Excel (.xlsx, .xls) · CSV</small></button>
     <section className="studio-templates"><div className="studio-template-head"><h2>الگوهای آماده گزارش</h2><small>یک الگو انتخاب کنید تا وارد محیط طراحی شوید</small></div><div className="studio-template-list">{templates.map(t=><button key={t.kind} onClick={()=>onPrompt("برای من یک گزارش "+t.name+" طراحی کن؛ اگر داده لازم است بپرس.")}><Preview kind={t.kind}/><b>{t.name}</b></button>)}</div></section>
    </main>
