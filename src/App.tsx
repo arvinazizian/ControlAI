@@ -1,3 +1,4 @@
+import StudioHome from "./StudioHome";
 import ModelOverview from "./ModelOverview";
 import SmartReport from "./SmartReport";
 import RealReportBuilder from "./RealReportBuilder";
@@ -63,6 +64,7 @@ export default function App() {
   const [showWorkspace,setShowWorkspace] = useState(true);
   const [conversation,setConversation] = useState<ConversationAnswers>(restoredSession.conversation);
   const [assistantOpen,setAssistantOpen] = useState(false);
+  const [studioHomeOpen,setStudioHomeOpen]=useState(true);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("ai");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
   const t=(key:TranslationKey)=>translate(language,key);
@@ -140,6 +142,7 @@ export default function App() {
     const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
     const a=document.createElement("a");a.href=url;a.download="controlai-visual.json";a.click();URL.revokeObjectURL(url);
   }
+  if(showWorkspace&&studioHomeOpen&&setupStep!=="done")return <StudioHome language={language} onOpen={next=>{setStudioHomeOpen(false);setTab(next);if(next==="report")setSetupStep("done");}} onUpload={()=>{setStudioHomeOpen(false);setTab("sources");}} onPrompt={q=>{setPrompt(q);setStudioHomeOpen(false);setSetupStep("done");setTab("report");setNotice(language==="fa"?"درخواست شما در کادر دستیار آماده است؛ برای ارسال دکمه اعمال تغییر را بزنید.":"Your request is ready in the assistant; press Apply change to send.");}} onImage={()=>{setStudioHomeOpen(false);setSetupStep("done");setTab("report");setNotice(language==="fa"?"در بخش دستیار، دکمه عکس را بزن و تصویر را انتخاب کن.":"Use the Image button in the assistant to attach a screenshot.");}}/>;
   if(!showWorkspace)return <ChatOnboarding language={language} onLanguageChange={changeLanguage} onOpenWorkspace={answers=>{setConversation(answers);setTab(answers.source?.includes("none")?"report":"sources");setShowWorkspace(true);}}/>;
   return <div className="app">
     <aside className="sidebar"><div className="brand"><BarChart3 size={25}/><span>Control<span className="accent">AI</span></span></div>    <nav className="workspace-tabs side-workspace-tabs" aria-label={language==="fa"?"بخش‌های محیط کار":"Workspace sections"}>
