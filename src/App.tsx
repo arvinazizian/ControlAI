@@ -148,7 +148,7 @@ export default function App() {
       {tab!=="report"&&tab!=="preview"&&<div className="stage-navigation"><button className="secondary" onClick={()=>setTab("report")}>{language==="fa"?"رفتن به استودیو گزارش":"Open report studio"}</button></div>}
     </div>
     {tab==="report"&&<section className="panel" style={{marginTop:16,padding:16}} aria-label="Report command chat"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><strong>✦ {language==="fa"?"دستیار طراحی گزارش":"Report design assistant"}</strong><span style={{fontSize:12,opacity:.7}}>{language==="fa"?"تغییرات سریع با فرمان متنی؛ اجرای خودکار AI هنوز فعال نیست":"Quick text commands; automatic AI edits are not yet enabled"}</span></div><div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><textarea style={{flex:"1 1 300px",minHeight:64}} value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder={language==="fa"?"مثلاً: نمودار عمودی، مقدار واقعی، رنگ سبز":"e.g. vertical chart, actual values, green palette"}/><button className="primary" disabled={!prompt.trim()} onClick={applyPrompt}>{language==="fa"?"اعمال تغییر":"Apply change"}</button><button className="secondary" onClick={()=>{setAssistantOpen(true);setAssistantMode("ai");document.getElementById("controlai-guidance")?.scrollIntoView({behavior:"smooth"});}}>{language==="fa"?"سؤال از AI":"Ask AI"}</button></div>{notice&&<p role="status" style={{marginTop:8}}>{notice}</p>}</section>}
-    <div id="controlai-guidance">{tab==="report"&&<section className="assistant-dock" aria-label="ControlAI assistant">
+    {tab==="report"&&<div id="controlai-guidance"><section className="assistant-dock" aria-label="ControlAI assistant">
       <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
       {assistantOpen&&<div className="assistant-dock-body">
         {!experience?<ExperienceOnboarding language={language} onComplete={profile=>{setExperience(profile);localStorage.setItem("controlai-experience-v1",JSON.stringify(profile));}}/>:<>
@@ -159,7 +159,6 @@ export default function App() {
           <button className="secondary" onClick={()=>setExperience(null)}>{language==="fa"?"تغییر سطح راهنمایی":"Change guidance level"}</button>
         </>}
       </div>}
-    </section>}
-</div>
+    </section></div>}
     <footer>ControlAI MVP · Free & open-source visualization stack · All default values are demo data</footer></main></div>;
 }
