@@ -12,10 +12,14 @@ export default async function handler(req:any,res:any){
  if(!body||typeof body!=="object"||!["discovery","data_quality","relationships","model","report","visual_command","chat"].includes(body.stage))return res.status(400).json({error:"Invalid stage"});
  if(body.stage==="chat"){
   const command=String(body.metadata?.command||"").slice(0,500);
-  const wantsText=/(text[\\s-]*box|textbox|تکست[\\s-]*باکس|کادر[\\s‌]*متن)/i.test(command)&&/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|baram|bezar|bzar|gozar)/i.test(command);
-  if(wantsText){
-   const match=command.match(/(?:بنویس|benevis|benvis|write|saying|with text)[\\s:：]*["“']?(.+?)["”']?(?:\\s+(?:توش|داخلش|toosh|tosh|samte?|rast|right|left|chap|چپ|راست|سمت))?\\s*$/i);
-   const content=(match?.[1]||"Welcome").replace(/\\s+(?:tosh|toosh|samte?\\s*rast|سمت راست|توش|داخلش).*$/i,"").trim().slice(0,150)||"Welcome";
+  const prev=Array.isArray(body.previous)?body.previous:[];
+  const prior=prev.slice(-6).map((m:any)=>String(m?.text||"")).join(" ");
+  const textMention=/(text\s*box|textbox|تکست\s*باکس|کادر\s*متن)/i.test(command);
+  const creation=/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|b[eai]zar|bzar|gozar|make)/i.test(command);
+  const continuation=/(یعنی|yani|bale|آره|yes)/i.test(command)&&/(text\s*box|textbox)/i.test(prior);
+  if(textMention&&(creation||continuation)){
+   const match=command.match(/(?:بنویس|benevis|benvis|write|saying|with text)\s*[:：]?\s*["“']?(.+?)["”']?\s*$/i);
+   const content=(match?.[1]||"Welcome").replace(/\s+(?:tosh|toosh|samte?\s*rast|سمت راست|توش|داخلش).*$/i,"").trim().slice(0,150)||"Welcome";
    const position=/(right|rast|راست)/i.test(command)?"right":/(left|chap|چپ)/i.test(command)?"left":"auto";
    return res.status(200).json({reply:"Text box created on the report canvas.",action:"add_text",text:content,position});
   }
