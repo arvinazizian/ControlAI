@@ -93,3 +93,10 @@ html[dir="rtl"] .side-workspace-tabs .workspace-tab.active{box-shadow:inset -3px
 .assistant-mode-tabs button.active{background:#247d90}
 @media(max-width:900px){.sidebar{width:176px}main{width:calc(100% - 176px);padding:18px}.brand{font-size:18px}.side-workspace-tabs .workspace-tab{padding:11px 9px;font-size:12px}}
 @media(max-width:700px){.app{display:block}.sidebar{position:sticky;top:0;z-index:20;width:100%;height:auto;display:block;padding:10px 12px;overflow:visible}.brand{margin:0 0 8px;font-size:17px}.sidebar .sidebottom{display:none}.workspace-tabs.side-workspace-tabs{flex-direction:row;overflow-x:auto;flex-wrap:nowrap;gap:5px;padding:2px 0 6px}.side-workspace-tabs .workspace-tab{width:auto;flex:0 0 auto;white-space:nowrap;padding:9px 12px;font-size:12px}.side-workspace-tabs .workspace-tab.active{box-shadow:inset 0 -3px #55c9bb}main{width:100%;padding:14px}.panel{padding:14px}main>header h1{font-size:22px}}
+
+/* Keep onboarding focused on one task at a time */
+main.setup-active>header,main.setup-active>.conversation-brief{display:none}
+main.setup-active .workspace-stage>.stage-heading{display:none}
+main.setup-active .workspace-stage>.panel,main.setup-active .workspace-stage>.assistant-dock{display:none}
+.setup-flow{border:1px solid #3c6972;background:#14283a;box-shadow:0 14px 40px #07111d35}
+.setup-flow h2{margin:12px 0 16px;font-size:23px}.setup-flow p{line-height:1.7}.setup-flow select{max-width:560px;display:block;margin:12px 0 18px}.setup-flow th,.setup-flow td{padding:10px 12px;text-align:start;border-bottom:1px solid #31465b}
