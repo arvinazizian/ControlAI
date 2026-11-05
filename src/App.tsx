@@ -51,7 +51,7 @@ function parseCSV(text: string): Project[] {
 const SESSION_KEY="controlai-workspace-session-v1";
 function restoreWorkspace():{open:boolean;tab:WorkspaceTab;conversation:ConversationAnswers;datasets:Dataset[]} {
  try {
-  const saved=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");
+  const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||sessionStorage.getItem(SESSION_KEY)||"null");
   if(!saved||typeof saved!=="object")throw Error("No saved session");
   const tabs:WorkspaceTab[]=["report","preview","sources","data","relationships","model","settings"];
   return {open:saved.open===true,tab:tabs.includes(saved.tab)?saved.tab:"report",conversation:saved.conversation&&typeof saved.conversation==="object"?saved.conversation:{},datasets:Array.isArray(saved.datasets)?saved.datasets:[]};
@@ -64,7 +64,7 @@ export default function App() {
   const [showWorkspace,setShowWorkspace] = useState(true);
   const [conversation,setConversation] = useState<ConversationAnswers>(restoredSession.conversation);
   const [assistantOpen,setAssistantOpen] = useState(false);
-  const [studioHomeOpen,setStudioHomeOpen]=useState(true);
+  const [studioHomeOpen,setStudioHomeOpen]=useState(()=>restoredSession.datasets.length===0);
   const [assistantMode,setAssistantMode] = useState<AssistantMode>("ai");
   const [language,setLanguage] = useState<Language>(preferredLanguage);
   const t=(key:TranslationKey)=>translate(language,key);
@@ -74,7 +74,7 @@ export default function App() {
   const [projects,setProjects] = useState<Project[]>(sampleProjects);
   const [importedDatasets,setImportedDatasets] = useState<Dataset[]>(restoredSession.datasets);
   useEffect(()=>{
-    try {sessionStorage.setItem(SESSION_KEY,JSON.stringify({open:showWorkspace,tab,conversation,datasets:importedDatasets}));}
+    try {localStorage.setItem(SESSION_KEY,JSON.stringify({open:showWorkspace,tab,conversation,datasets:importedDatasets}));}
     catch(e){console.warn("Workspace session could not be saved",e);}
   },[showWorkspace,tab,conversation,importedDatasets]);
   const [setupStep,setSetupStep]=useState<"upload"|"clean"|"questions"|"done">(()=>restoredSession.datasets.length?"clean":"upload");
