@@ -80,7 +80,8 @@ export default function App() {
   const [experience,setExperience] = useState<ExperienceProfile|null>(()=>{try{const raw=localStorage.getItem("controlai-experience-v1");return raw?JSON.parse(raw) as ExperienceProfile:null;}catch{return null;}});
   const [selected,setSelected] = useState<string | null>("P-102");
   const [error,setError] = useState("");
-  const [prompt,setPrompt] = useState("");\n  const [visualCommand,setVisualCommand]=useState("");const [visualCommandVersion,setVisualCommandVersion]=useState(0);const [commandBusy,setCommandBusy]=useState(false);
+  const [prompt,setPrompt] = useState("");
+  const [visualCommand,setVisualCommand]=useState("");const [visualCommandVersion,setVisualCommandVersion]=useState(0);const [commandBusy,setCommandBusy]=useState(false);
   const [notice,setNotice] = useState("");
   const palette = palettes[settings.palette];
   if(typeof document!=="undefined"){document.documentElement.lang=language;document.documentElement.dir=language==="fa"||language==="ar"?"rtl":"ltr";}
