@@ -106,10 +106,11 @@ export default function App() {
     try{
       const response=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({stage:"chat",profile:{language},metadata:{command:input,datasets:reportDatasets.map(d=>({name:d.name,columns:d.columns,rowCount:d.rows.length}))},previous:history.slice(-10)})});
       const result=await response.json();if(!response.ok)throw Error(result.detail||result.error||"AI unavailable");
-      if(result.action==="edit_text"){setVisualCommand("edit_text:"+String(result.target||"")+":"+String(result.text||""));setVisualCommandVersion(v=>v+1);}
-      if(result.action==="add_text"){setVisualCommand("add_text:"+String(result.position||"auto")+":"+String(result.text||"Welcome"));setVisualCommandVersion(v=>v+1);}
-      if(result.action==="change_visual"&&result.kind!=="none"){setVisualCommand(result.kind);setVisualCommandVersion(v=>v+1);}
-      setChatMessages(prev=>[...prev,{role:"assistant",text:result.action==="add_text"?"Text box added: "+String(result.text||"Welcome"):result.action==="edit_text"?"Text box updated: "+String(result.text||""):String(result.reply||"")}]);
+      if(result.action!=="none"&&["add_visual","edit_visual","delete_visual","move_visual","change_visual"].includes(result.action)){
+        setVisualCommand("canvas_json:"+JSON.stringify({action:result.action,kind:result.kind,target:result.target,text:result.text,title:result.title,position:result.position,width:result.width,height:result.height}));
+        setVisualCommandVersion(v=>v+1);
+        setChatMessages(prev=>[...prev,{role:"assistant",text:language==="fa"?"دستور به بوم ارسال شد؛ نتیجه را روی گزارش بررسی کن.":"Command sent to the canvas; check the report for the result."}]);
+      }else setChatMessages(prev=>[...prev,{role:"assistant",text:String(result.reply||"Please clarify your request.")}]);
     }catch(e){setChatMessages(prev=>[...prev,{role:"assistant",text:(language==="fa"?"خطای اتصال: ":"Connection error: ")+(e instanceof Error?e.message:String(e))}]);}
     finally{setCommandBusy(false);}
   }
