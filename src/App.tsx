@@ -109,7 +109,7 @@ export default function App() {
       if(result.action!=="none"&&["add_visual","edit_visual","delete_visual","move_visual","change_visual"].includes(result.action)){
         setVisualCommand("canvas_json:"+JSON.stringify({action:result.action,kind:result.kind,target:result.target,text:result.text,title:result.title,position:result.position,width:result.width,height:result.height}));
         setVisualCommandVersion(v=>v+1);
-        setChatMessages(prev=>[...prev,{role:"assistant",text:language==="fa"?"دستور به بوم ارسال شد؛ نتیجه را روی گزارش بررسی کن.":"Command sent to the canvas; check the report for the result."}]);
+        setChatMessages(prev=>[...prev,{role:"assistant",text:String(result.reply||"")||"…"}]);
       }else setChatMessages(prev=>[...prev,{role:"assistant",text:String(result.reply||"Please clarify your request.")}]);
     }catch(e){setChatMessages(prev=>[...prev,{role:"assistant",text:(language==="fa"?"خطای اتصال: ":"Connection error: ")+(e instanceof Error?e.message:String(e))}]);}
     finally{setCommandBusy(false);}
