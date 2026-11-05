@@ -3,11 +3,12 @@ export default async function handler(req:any,res:any){
  if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
  const groqKey=process.env.GROQ_API_KEY;
  const key=groqKey||process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
- const model=process.env.CONTROLAI_MODEL||(groqKey?"openai/gpt-oss-20b":"openai/gpt-4o-mini");
+ const model=process.env.CONTROLAI_MODEL||(groqKey?"llama-3.1-8b-instant":"openai/gpt-4o-mini");
  const provider=groqKey?"Groq":"AI Gateway";
  if(!key)return res.status(503).json({error:"AI authentication is not configured. Add GROQ_API_KEY to the Vercel project."});
  const body=req.body;
  if(!body||typeof body!=="object"||!["discovery","data_quality","relationships","model","report","visual_command","chat"].includes(body.stage))return res.status(400).json({error:"Invalid stage"});
+ if(body.stage==="chat"){const command=String(body.metadata?.command||"").slice(0,500);const wantsText=/(text\s*box|textbox|text box|تکست\s*باکس|متن|نوشته)/i.test(command)&&/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|baram)/i.test(command);if(wantsText){const match=command.match(/(?:بنویس|benevis|write|saying|with text)\s*[:：]?\s*["“']?(.+?)["”']?\s*$/i);return res.status(200).json({reply:"Text box ready to add to the canvas.",action:"add_text",text:(match?.[1]||"Welcome").slice(0,150)});}}
  const serialized=JSON.stringify(body);
  if(serialized.length>18000)return res.status(413).json({error:"Request too large; send metadata only"});
  const profile=body.profile&&typeof body.profile==="object"?body.profile:{};
@@ -18,10 +19,10 @@ export default async function handler(req:any,res:any){
  try{
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),18000);
  let response:Response;
- try{response=await fetch(groqKey?"https://api.groq.com/openai/v1/chat/completions":"https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",signal:controller.signal,headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify({stage:body.stage,profile,metadata,reportIntent,previous})}],temperature:0.2,max_tokens:700,response_format:{type:"json_object"}})});}finally{clearTimeout(timeout);}
+ try{response=await fetch(groqKey?"https://api.groq.com/openai/v1/chat/completions":"https://ai-gateway.vercel.sh/v1/chat/completions",{method:"POST",signal:controller.signal,headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model,messages:[{role:"system",content:system},{role:"user",content:JSON.stringify({stage:body.stage,profile,metadata,reportIntent,previous})}],temperature:0.2,max_tokens:700,...(body.stage==="chat"?{}:{response_format:{type:"json_object"}})})});}finally{clearTimeout(timeout);}
  if(!response.ok){const failure=await response.json().catch(()=>({}));const providerMessage=typeof failure?.error?.message==="string"?failure.error.message:"";const safe=providerMessage.slice(0,240).replace(/(vck_[A-Za-z0-9_-]+|sk-[A-Za-z0-9_-]+)/g,"[redacted]");return res.status(502).json({error:response.status===401||response.status===403?provider+" rejected the API key":response.status===402?provider+" credit is unavailable":response.status===404?"The selected AI model is unavailable":provider+" unavailable",status:response.status,detail:safe});}
  const result=await response.json();const raw=result?.choices?.[0]?.message?.content;if(typeof raw!=="string")throw Error("Empty AI response");
- const parsed=JSON.parse(raw);
+ let parsed:any;try{parsed=JSON.parse(raw);}catch{if(body.stage==="chat")return res.status(200).json({reply:raw.slice(0,900),action:"none",kind:"none"});throw Error("Invalid JSON");}
  if(body.stage==="chat"){const kinds=["radar","bar","line","table","kpi"];return res.status(200).json({reply:typeof parsed.reply==="string"?parsed.reply.slice(0,900):"Please clarify your request.",action:parsed.action==="change_visual"&&kinds.includes(parsed.kind)?"change_visual":"none",kind:kinds.includes(parsed.kind)?parsed.kind:"none"});}
  if(body.stage==="visual_command"){const kinds=["radar","bar","line","table","kpi"];const kind=kinds.includes(parsed.kind)?parsed.kind:"unknown";return res.status(200).json({kind,explanation:typeof parsed.explanation==="string"?parsed.explanation.slice(0,300):"",executed:false});}
  if(typeof parsed.question!=="string"||!Array.isArray(parsed.options)||!Array.isArray(parsed.evidenceNeeded)||!Array.isArray(parsed.proposedActions)||typeof parsed.reason!=="string"||typeof parsed.confidence!=="number")throw Error("Invalid AI response");
