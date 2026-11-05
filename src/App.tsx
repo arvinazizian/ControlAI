@@ -83,6 +83,7 @@ export default function App() {
   const [prompt,setPrompt] = useState("");
   const [visualCommand,setVisualCommand]=useState("");const [visualCommandVersion,setVisualCommandVersion]=useState(0);const [commandBusy,setCommandBusy]=useState(false);
   const [notice,setNotice] = useState("");
+  const [chatMessages,setChatMessages]=useState<{role:"user"|"assistant";text:string}[]>([]);
   const palette = palettes[settings.palette];
   if(typeof document!=="undefined"){document.documentElement.lang=language;document.documentElement.dir=language==="fa"||language==="ar"?"rtl":"ltr";}
   const data = useMemo(() => [...projects].sort((a,b) => settings.sort === "variance" ? (b.forecast-b.budget)-(a.forecast-a.budget) : a.name.localeCompare(b.name)),[projects,settings.sort]);
@@ -99,14 +100,15 @@ export default function App() {
     animationDuration:450
   };
   async function applyPrompt() {
-    const input=prompt.trim();if(!input)return;
-    setCommandBusy(true);setNotice(language==="fa"?"در حال بررسی دستور…":"Interpreting command…");
+    const input=prompt.trim();if(!input||commandBusy)return;
+    const history=[...chatMessages,{role:"user" as const,text:input}];
+    setChatMessages(history);setPrompt("");setCommandBusy(true);setNotice("");
     try{
-      const response=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({stage:"visual_command",profile:{language},metadata:{command:input},previous:[]})});
+      const response=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({stage:"chat",profile:{language},metadata:{command:input,datasets:reportDatasets.map(d=>({name:d.name,columns:d.columns,rowCount:d.rows.length}))},previous:history.slice(-10)})});
       const result=await response.json();if(!response.ok)throw Error(result.detail||result.error||"AI unavailable");
-      if(result.kind==="unknown"){setNotice(language==="fa"?"نوع نمودار مشخص نیست؛ لطفاً نوع تغییر را بگو.":"Please specify the visual type.");return;}
-      setVisualCommand(result.kind);setVisualCommandVersion(v=>v+1);setPrompt("");
-    }catch(e){setNotice((language==="fa"?"اتصال AI ناموفق بود: ":"AI request failed: ")+(e instanceof Error?e.message:String(e)));}
+      if(result.action==="change_visual"&&result.kind!=="none"){setVisualCommand(result.kind);setVisualCommandVersion(v=>v+1);}
+      setChatMessages(prev=>[...prev,{role:"assistant",text:String(result.reply||"")}]);
+    }catch(e){setChatMessages(prev=>[...prev,{role:"assistant",text:(language==="fa"?"خطای اتصال: ":"Connection error: ")+(e instanceof Error?e.message:String(e))}]);}
     finally{setCommandBusy(false);}
   }
   function download() {
@@ -144,7 +146,7 @@ export default function App() {
       {tab==="settings"&&<><ModelWizard language={language}/><ExcelImport terms={terms} language={language} onImport={rows=>{setProjects(rows);setSelected(rows[0]?.id??null);}}/><CompanyGlossary terms={terms} language={language} onChange={saveTerms}/><ManualAIExchange terms={terms} language={language} onApply={update}/></>}
       {tab!=="report"&&tab!=="preview"&&<div className="stage-navigation"><button className="secondary" onClick={()=>setTab("report")}>{language==="fa"?"رفتن به استودیو گزارش":"Open report studio"}</button></div>}
     </div>
-    {tab==="report"&&<section className="panel" style={{marginTop:16,padding:16}} aria-label="Report command chat"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><strong>✦ {language==="fa"?"دستیار طراحی گزارش":"Report design assistant"}</strong><span style={{fontSize:12,opacity:.7}}>{language==="fa"?"تغییرات سریع با فرمان متنی؛ اجرای خودکار AI هنوز فعال نیست":"AI-assisted chart edits · select a chart above first"}</span></div><div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><textarea style={{flex:"1 1 300px",minHeight:64}} value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder={language==="fa"?"مثلاً: نمودار عمودی، مقدار واقعی، رنگ سبز":"e.g. vertical chart, actual values, green palette"}/><button className="primary" disabled={!prompt.trim()||commandBusy} onClick={()=>void applyPrompt()}>{language==="fa"?"اعمال تغییر":"Apply change"}</button><button className="secondary" onClick={()=>{setAssistantOpen(true);setAssistantMode("ai");document.getElementById("controlai-guidance")?.scrollIntoView({behavior:"smooth"});}}>{language==="fa"?"سؤال از AI":"Ask AI"}</button></div>{notice&&<p role="status" style={{marginTop:8}}>{notice}</p>}</section>}
+    {tab==="report"&&<section className="panel" style={{marginTop:16,padding:16}} aria-label="Report command chat"><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><strong>✦ {language==="fa"?"دستیار طراحی گزارش":"Report design assistant"}</strong><span style={{fontSize:12,opacity:.7}}>{language==="fa"?"تغییرات سریع با فرمان متنی؛ اجرای خودکار AI هنوز فعال نیست":"Chat with AI · select a chart to change it"}</span></div><div style={{maxHeight:260,overflowY:"auto",display:"grid",gap:8,marginTop:12}} aria-live="polite">{chatMessages.map((m,i)=><div key={i} style={{padding:10,borderRadius:10,background:m.role==="user"?"#173765":"#1e293b",maxWidth:"90%",justifySelf:m.role==="user"?"end":"start",whiteSpace:"pre-wrap"}}><small style={{display:"block",opacity:.7}}>{m.role==="user"?"You":"ControlAI"}</small>{m.text}</div>)}{commandBusy&&<span>AI …</span>}</div><div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><textarea style={{flex:"1 1 300px",minHeight:64}} value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder={language==="fa"?"مثلاً: نمودار عمودی، مقدار واقعی، رنگ سبز":"e.g. vertical chart, actual values, green palette"}/><button className="primary" disabled={!prompt.trim()||commandBusy} onClick={()=>void applyPrompt()}>{language==="fa"?"اعمال تغییر":"Apply change"}</button><button className="secondary" onClick={()=>{setAssistantOpen(true);setAssistantMode("ai");document.getElementById("controlai-guidance")?.scrollIntoView({behavior:"smooth"});}}>{language==="fa"?"سؤال از AI":"Ask AI"}</button></div>{notice&&<p role="status" style={{marginTop:8}}>{notice}</p>}</section>}
     {tab==="report"&&<div id="controlai-guidance"><section className="assistant-dock" aria-label="ControlAI assistant">
       <div className="assistant-dock-head"><div><strong>✦ ControlAI Assistant</strong><small>{language==="fa"?"سؤال‌های هوشمند و راهنمای مرحله‌به‌مرحله":"Adaptive questions and step-by-step guidance"}</small></div><button className="secondary" onClick={()=>setAssistantOpen(v=>!v)} aria-expanded={assistantOpen}>{assistantOpen?(language==="fa"?"بستن راهنما ↑":"Hide ↑"):(language==="fa"?"بازکردن راهنما ↓":"Open ↓")}</button></div>
       {assistantOpen&&<div className="assistant-dock-body">
