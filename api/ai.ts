@@ -17,6 +17,8 @@ export default async function handler(req:any,res:any){
   const textMention=/(text\s*box|textbox|تکست\s*باکس|کادر\s*متن)/i.test(command);
   const creation=/(بساز|درست|اضافه|بذار|بگذار|create|add|dorost|besaz|b[eai]zar|bzar|gozar|make)/i.test(command);
   const continuation=/(یعنی|yani|bale|آره|yes)/i.test(command)&&/(text\s*box|textbox)/i.test(prior);
+  const editText=/(عوض|تغییر|جایگزین|ویرایش|avaz|taghir|change|replace|edit)/i.test(command)&&/(text\s*box|textbox|welcome|متن|نوشته)/i.test(command);
+  if(editText){const target=/(welcome)/i.test(command)?"Welcome":"";const persian=/(خوش\s*آمد|khosh\s*amad|khosh\s*amadi)/i.test(command);const match=command.match(/(?:بنویس|benevis|benvis|be\s*nevis|write|replace with|to)\s*[:：]?\s*["“']?(.+?)["”']?\s*$/i);const content=persian?"خوش آمدی":(match?.[1]||"").trim().slice(0,150);if(content)return res.status(200).json({reply:"Text box updated on the report canvas.",action:"edit_text",text:content,target});}
   if(textMention&&(creation||continuation)){
    const match=command.match(/(?:بنویس|benevis|benvis|write|saying|with text)\s*[:：]?\s*["“']?(.+?)["”']?\s*$/i);
    const content=(match?.[1]||"Welcome").replace(/\s+(?:tosh|toosh|samte?\s*rast|سمت راست|توش|داخلش).*$/i,"").trim().slice(0,150)||"Welcome";
