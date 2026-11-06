@@ -29,19 +29,43 @@ export default async function handler(req:any,res:any){
  if(process.env.CONTROLAI_AI_PRIMARY==="gemini")providers.sort((a,b)=>Number(b.name==="Gemini")-Number(a.name==="Gemini"));
  let parsed:any;let usedProvider="";const failures:string[]=[];
  for(const provider of providers){
-  const request=async(strict:boolean)=>{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),9000);try{return await fetch(provider.endpoint,{method:"POST",signal:controller.signal,headers:{"Authorization":"Bearer "+provider.key,"Content-Type":"application/json"},body:JSON.stringify({model:provider.model,messages,temperature:0.15,max_tokens:1200,...(strict?{response_format:{type:"json_object"}}:{})})});}finally{clearTimeout(timeout);}};
-  try{
-   let response=await request(true);
-   if(!response.ok){const error=await response.json().catch(()=>({}));const reason=String(error?.error?.message||error?.error?.code||response.status);if(/json|failed_generation|format/i.test(reason))response=await request(false);else {failures.push(provider.name+": HTTP "+response.status);continue;}}
-   if(!response.ok){failures.push(provider.name+": HTTP "+response.status);continue;}
-   const result=await response.json();const raw=result?.choices?.[0]?.message?.content;
-   if(typeof raw!=="string")throw Error("Empty response");
-   try{parsed=JSON.parse(raw);}catch{const first=raw.indexOf("{");const last=raw.lastIndexOf("}");try{parsed=first>=0&&last>first?JSON.parse(raw.slice(first,last+1)):undefined;}catch{parsed=undefined;}}
-   if(!parsed||typeof parsed!=="object")throw Error("Invalid JSON response");
-   usedProvider=provider.name;break;
-  }catch(e){failures.push(provider.name+": "+(e instanceof Error?e.name:"request failed"));}
+  const request=async(strict:boolean)=>{
+   const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),14000);
+   try{return await fetch(provider.endpoint,{method:"POST",signal:controller.signal,headers:{"Authorization":"Bearer "+provider.key,"Content-Type":"application/json"},body:JSON.stringify({model:provider.model,messages,temperature:0.15,max_tokens:2000,...(strict?{response_format:{type:"json_object"}}:{})})});}
+   finally{clearTimeout(timeout);}
+  };
+  for(const strict of [true,false]){
+   try{
+    const response=await request(strict);
+    if(!response.ok){
+     const error=await response.json().catch(()=>({}));
+     const reason=String(error?.error?.message||error?.error?.code||response.status);
+     failures.push(provider.name+": HTTP "+response.status+" "+reason.slice(0,100));
+     if(strict&&(response.status===400||response.status===422||/format|json|failed_generation/i.test(reason)))continue;
+     break;
+    }
+    const result=await response.json();
+    const raw=result?.choices?.[0]?.message?.content;
+    if(typeof raw!=="string"||!raw.trim()){failures.push(provider.name+": empty content");if(strict)continue;break;}
+    let candidate:any;
+    try{candidate=JSON.parse(raw);}catch{
+     const first=raw.indexOf("{"),last=raw.lastIndexOf("}");
+     if(first>=0&&last>first){try{candidate=JSON.parse(raw.slice(first,last+1));}catch{candidate=undefined;}}
+    }
+    if(!candidate||typeof candidate!=="object"||Array.isArray(candidate)){
+     failures.push(provider.name+": invalid JSON");
+     if(strict)continue;
+     break;
+    }
+    parsed=candidate;usedProvider=provider.name;break;
+   }catch(e){
+    failures.push(provider.name+": "+(e instanceof Error?e.name:"request failed"));
+    break;
+   }
+  }
+  if(parsed)break;
  }
- if(!parsed)return res.status(502).json({error:"All configured AI providers failed",providersTried:providers.map(p=>p.name),failures});
+ if(!parsed)return res.status(502).json({error:"All configured AI providers failed",providersTried:providers.map(p=>p.name),failures:failures.map(x=>x.replace(/AIza[\\w-]+/g,"[redacted]").slice(0,130))});
  res.setHeader("X-ControlAI-Provider",usedProvider);
  if(body.stage==="chat"){const actions=["add_visual","edit_visual","delete_visual","move_visual","change_visual","none"];const kinds=["text","shape","radar","bar","line","table","kpi","none"];const action=actions.includes(parsed.action)?parsed.action:"none";const kind=kinds.includes(parsed.kind)?parsed.kind:"none";return res.status(200).json({reply:typeof parsed.reply==="string"?parsed.reply.slice(0,900):"",action,kind,target:typeof parsed.target==="string"?parsed.target.slice(0,150):"",text:typeof parsed.text==="string"?parsed.text.slice(0,500):"",title:typeof parsed.title==="string"?parsed.title.slice(0,150):"",position:["right","left","top","bottom","auto"].includes(parsed.position)?parsed.position:"auto",width:typeof parsed.width==="number"?Math.max(120,Math.min(1200,parsed.width)):undefined,height:typeof parsed.height==="number"?Math.max(70,Math.min(900,parsed.height)):undefined});}
   if(body.stage==="visual_command"){const kinds=["radar","bar","line","table","kpi"];const kind=kinds.includes(parsed.kind)?parsed.kind:"unknown";return res.status(200).json({kind,explanation:typeof parsed.explanation==="string"?parsed.explanation.slice(0,300):"",executed:false});}
