@@ -1,4 +1,5 @@
 // Vercel serverless function. Secrets stay on server; never send full customer tables.
+export const config={maxDuration:60};
 export default async function handler(req:any,res:any){
  if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
  const imageData=typeof req.body?.metadata?.image==="string"?req.body.metadata.image:"";
