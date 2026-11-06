@@ -100,3 +100,45 @@ main.setup-active .workspace-stage>.stage-heading{display:none}
 main.setup-active .workspace-stage>.panel,main.setup-active .workspace-stage>.assistant-dock{display:none}
 .setup-flow{border:1px solid #3c6972;background:#14283a;box-shadow:0 14px 40px #07111d35}
 .setup-flow h2{margin:12px 0 16px;font-size:23px}.setup-flow p{line-height:1.7}.setup-flow select{max-width:560px;display:block;margin:12px 0 18px}.setup-flow th,.setup-flow td{padding:10px 12px;text-align:start;border-bottom:1px solid #31465b}
+
+
+/* Unified light theme for INNER workspace only; StudioHome retains its own design */
+html:has(.app),body:has(.app){background:#f4f7fb;color:#22384e}
+.app{background:#f4f7fb;color:#22384e}
+.app .sidebar{background:#fff;border-color:#e0e8f0;box-shadow:3px 0 18px #213c5509}
+.app .brand{color:#1f3850}
+.app .brand svg,.app .accent{color:#079ab1}
+.app .sidebar .sidebottom{color:#8a9aaa}
+.app main{background:#f4f7fb;color:#24394e}
+.app h1,.app h2,.app h3,.app h4,.app strong{color:#22384d}
+.app p,.app .controls label,.app .formgrid label,.app .import>label{color:#657c91}
+.app .panel,.app .stat,.app .setup-flow{background:#fff;border-color:#dfe8f0;box-shadow:0 4px 18px #18395009;color:#253e55}
+.app .panel p,.app .stat span{color:#6b8297}
+.app .primary{background:#078fa9;color:white}
+.app .primary:hover{background:#087e97}
+.app .secondary{background:#eaf3f8;color:#24526c;border:1px solid #d9e7ef}
+.app .secondary:hover{background:#dbeef5}
+.app .chip{background:#eaf7fa;border-color:#c2e6ec;color:#167e94}
+.app .eyebrow{color:#098aa6}
+.app .side-workspace-tabs .workspace-tab{color:#60788d}
+.app .side-workspace-tabs .workspace-tab:hover{background:#eef7fa;color:#086f89}
+.app .side-workspace-tabs .workspace-tab.active{background:#e7f7fa;border-color:#b6e1e8;color:#067c94;box-shadow:inset 3px 0 #0ca0b5}
+html[dir="rtl"] .app .side-workspace-tabs .workspace-tab.active{box-shadow:inset -3px 0 #0ca0b5}
+.app select,.app input:not([type="checkbox"]):not([type="radio"]),.app textarea,.app .prompt input,.app .formgrid select,.app .import>label input,.app .import textarea{background:#fff;border:1px solid #cbdbe7;color:#263d53;border-radius:9px}
+.app input::placeholder,.app textarea::placeholder{color:#8da0b0}
+.app .termcards>div,.app .model-table-card,.app .model-links{background:#f8fbfe;border-color:#dbe6ef;color:#2c4459}
+.app .model-table-title{background:#eaf3f9;color:#2a4c63}
+.app .model-table-card li,.app .model-link{border-color:#dce8ef}
+.app .model-field-type,.app .model-link span{color:#098da6}
+.app .model-table-card small,.app .model-link small{color:#71879a}
+.app .drill{border-color:#e3ebf2}
+.app .drillstats div{color:#73889b}
+.app .drillstats strong{color:#263e54}
+.app .workspace-tabs:not(.side-workspace-tabs){background:#fff;border-color:#e2eaf1}
+.app .workspace-tab{color:#587187}
+.app .assistant-mode-tabs button.active{background:#0b91a8;color:#fff}
+.app .setup-flow{border-color:#c5e2e9}
+.app .setup-flow th,.app .setup-flow td{border-color:#e0e9f0;color:#2e455b}
+.app footer{color:#8597a8}
+.app button:focus-visible,.app select:focus-visible,.app textarea:focus-visible,.app input:focus-visible{outline:2px solid #0b9cb4;outline-offset:2px}
+@media(max-width:700px){.app .sidebar{background:#fff;border-bottom:1px solid #e0e8f0}.app .side-workspace-tabs .workspace-tab.active{box-shadow:inset 0 -3px #0ca0b5}}
